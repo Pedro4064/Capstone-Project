@@ -145,13 +145,13 @@
 
 \clearpage
 \section{Conceitos e Fundamentação Teórica}\label{chap:revisao_teorica}
-    Nesta seção apresentaremos alguns conceitos de fundamental importância para o campo de engenharia de software e em seguida introduziremos teorias fundamentais para a área de verificação formal. 
+    Nesta seção, são apresentados alguns conceitos fundamentais do campo de engenharia de software, como corretude funcional e erros em tempo de execução, em seguida são introduzidas teorias fundamentais para a área de verificação formal, como lógica de Hoare e pré-condição mais fraca, e por fim conceitos de engenharia de controle de sistemas, como controlador PID e filtros. 
     
 \subsection{Corretude Funcional}
 
     Quando nos referimos a corretude funcional de um software, estamos nos referindo à expectativa de que o programa escrito se comporta como o desenvolvedor e os \emph{stakeholders} esperam \cite{kosmatov2024guide}. A fim de ter uma garantia de que o sistema criado possui tal característica, diferentes métodos, com diferentes níveis de complexidade e garantia, podem ser empregados.
     
-     Durante o processo de desenvolvimento tradicional de software, tal tipo de verificação é feita através de testes, onde entradas, julgadas serem representativas das encontradas durante a operação do software em campo, são utilizadas e as saídas verificadas \cite{blanchard2020introduction}. O problema, entretanto, é que não é factível o desenvolvimento de testes que abrangem todas as possibilidades e combinações de \emph{inputs}, resultando, então, em uma limitação dos testes descrita por Dijkstra: ``Testes são capazes de demonstrar a presença de erros, mas nunca sua ausência" \cite{dijkstra1970ewd249}.
+     Durante o processo de desenvolvimento tradicional de software, tal tipo de verificação é feita através de testes, nos quais entradas, julgadas serem representativas das encontradas durante a operação do software em campo, são utilizadas e as saídas verificadas \cite{blanchard2020introduction}. O problema, entretanto, é que não é factível o desenvolvimento de testes que abrangem todas as possibilidades e combinações de \emph{inputs}, resultando, então, em uma limitação dos testes descrita por Dijkstra: ``Testes são capazes de demonstrar a presença de erros, mas nunca sua ausência" \cite{dijkstra1970ewd249}.
      
     Uma alternativa aos métodos tradicionais é a verificação formal, que tem como objetivo garantir, por meio de provas formais e matemáticas, baseadas na chamada Lógica de Hoare e na regra de pré-condição mais fraca (que serão abordadas mais a frente), que o software se comporte conforme especificado para qualquer entrada válida, ou seja, que respeite as especificações estabelecidas \cite{blanchard2020introduction}. 
 
@@ -161,7 +161,7 @@
     Diferentes erros se enquadram nessa categoria, sendo alguns deles: Divisão por zero, \emph{overflow} e \emph{underflow} de inteiros, \emph{overflow} de números com ponto flutuante, acesso inválido à memória (ponteiros nulos) e acesso fora dos limites de um \emph{array}.
     Devido ao potencial catastrófico que esses tipos de erros possuem, a garantia  de sua ausência é um foco importante no desenvolvimento de sistemas críticos. 
     
-    Analogamente à corretude funcional, testes podem ser utilizados em certo nível, mas como uma cobertura total não é possível, é inviável ter garantias \cite{kaestner2010astree}. Por esse motivo, métodos formais têm sido utilizados, dentre esses destaca-se a análise estática baseada em semântica formal, também conhecida como \textit{interpretação abstrata}. Essa abordagem permite derivar garantias mesmo em projetos de grande porte, ao calcular superaproximações seguras da semântica do programa por meio da análise  abstrata do código, cobrindo todos os possíveis comportamentos de execução, de forma conservadora, isso é, quando a ferramenta detecta um possível erro, pode ser um erro real ou apenas uma precaução (falso positivo), mas quando nenhum erro é apontado, há uma garantia formal de que aquele tipo de falha está ausente no código analisado \cite{kaestner2010astree}.
+    Analogamente à corretude funcional, testes podem ser utilizados em certo nível, mas como uma cobertura total não é possível, não há garantias de corretude \cite{kaestner2010astree}. Por esse motivo, métodos formais têm sido utilizados, dentre esses destaca-se a análise estática baseada em semântica formal, também conhecida como \textit{interpretação abstrata}. Essa abordagem permite derivar garantias mesmo em projetos de grande porte, ao calcular superaproximações seguras da semântica do programa por meio da análise  abstrata do código, cobrindo todos os possíveis comportamentos de execução, de forma conservadora, isso é, quando a ferramenta detecta um possível erro, pode ser um erro real ou apenas uma precaução (falso positivo), mas quando nenhum erro é apontado, há uma garantia formal de que aquele tipo de falha está ausente no código analisado \cite{kaestner2010astree}.
     
     
 \subsection{Lógica de Hoare}
@@ -180,7 +180,7 @@ A partir dessa notação, é possível expressar uma série de axiomas e regras 
 
 \subsubsection{Axioma da Atribuição}
 
-O primeiro axioma definido é o que descreve a ação mais simples e corriqueira em programas: A atribuição de um valor para uma variável. Mais especificamente, ele descreve a alteração no estado do programa quando uma instrução de atribuição (como a descrita pela equação \ref{eq:atribuicao}) é efetuada.
+O primeiro axioma definido é o que descreve a ação mais simples e corriqueira em programas: A atribuição de um valor para uma variável. Mais especificamente, ele descreve a alteração no estado do programa quando uma instrução de atribuição (como a descrita pela Equação \ref{eq:atribuicao}) é efetuada.
 
 \begin{align}
     x := E
@@ -281,13 +281,13 @@ Reescrevendo o programa com as respectivas anotações de pré-condições inter
                                 // { x > 0 }
 \end{lstlisting}
 
-Como resultado, tem-se que garantindo a pré-condição \ref{eq:pre_condi_exemplo}, o programa \ref{lst:codigo_simples_wp} terá o comportamento esperado e é funcionalmente correto.
+Como resultado, tem-se que garantindo a pré-condição \ref{eq:pre_condi_exemplo}, o Programa \ref{lst:codigo_simples_wp} terá o comportamento esperado e é funcionalmente correto.
 
 
 
 \clearpage
 \section{Trabalhos Correlatos}\label{chap:projetos_correlatos}
-    Nesta seção, revisaremos brevemente trabalhos que implementaram métodos de verificação formal por métodos dedutivos e por métodos de interpretação abstrata em alguma capacidade utilizando a plataforma Frama-c e seus \emph{plugins}. 
+    Nesta seção, serão brevemente revisados trabalhos que implementaram métodos de verificação formal por métodos dedutivos e por métodos de interpretação abstrata em alguma capacidade utilizando a plataforma Frama-c e seus \emph{plugins}. 
     
     Em um primeiro momento, são apresentados projetos que utilizaram tais métodos para garantir a corretude funcional dos softwares desenvolvidos; em seguida são apresentados trabalhos que os utilizaram para garantir a ausência de erros em tempo de execução.
         
@@ -295,7 +295,7 @@ Como resultado, tem-se que garantindo a pré-condição \ref{eq:pre_condi_exempl
     
     \subsection{Corretude Funcional}
     
-    Métodos formais tem ganho cada vez mais espaço em sistemas críticos de grandes industrias, mas algo que também está impulsionando e disseminando a sua utilização em projetos de natureza aberta é a ferramenta Frama-C open source e seus diversos plug-ins (mais especificamente o WP), que através de métodos dedutivos e da teoria de pré-condição mais fraca (abordada com mais detalhe na próxima seção) possibilitam a verificação formal para programas escritos em C.
+    Métodos formais tem ganho cada vez mais espaço em sistemas críticos de grandes industrias, mas algo que também está impulsionando e disseminando a sua utilização em projetos de natureza aberta é a ferramenta Frama-C open source e seus diversos plug-ins (mais especificamente o WP), que através de métodos dedutivos e da teoria de pré-condição mais fraca possibilitam a verificação formal para programas escritos em C.
 
     Um exemplo de tal é a iniciativa tomada por Baptiste Pollien de realizar a verificação formal da biblioteca matemática do piloto automático para UAVs chamada de Paparazzi\cite{perrone2016verifying}. Nesse trabalho, o autor analisa duas funções utilizadas para a navegação e planejamento de trajetórias: A função \emph{float\_rmat\_of\_quat}, que recebe como entrada um quaternion normalizado e retorna a matriz de rotação correspondente; e a função inversa \emph{float\_quat\_of\_rmat}. A primeira função conseguiu ter todas as condições de verificação provadas por \emph{solvers} automáticos, enquanto a segunda função não foi capaz de ser provada de forma automática, necessitando então da verificação interativa.
 
