@@ -85,7 +85,7 @@
 % Title
 \vspace{2cm}
 \begin{center}
-    \textbf{Verificação  por Métodos Formais da Biblioteca CMSIS-DSP ARM}
+    \textbf{Análise Formal de Controladores PID e Filtros de Média Móvel em C}
 \end{center}
 
 % Subtitle
@@ -127,13 +127,13 @@
 
     O termo Verificação Formal refere-se a diferentes métodos matemáticos utilizados para  a especificação, desenvolvimento e verificação de softwares e sistemas digitais \cite{rtca333}, possibilitando a verificação de propriedades de forma automática e exaustiva. A DO-333 separa os métodos de verificação formal em três categorias: \emph{Deductive Methods}, \emph{Model Checking} e \emph{Abstract Interpretation}, sendo os mais promissores aqueles que se encaixam nos métodos dedutivos. 
 
-    Considerando esse contexto, propõe-se neste trabalho a verificação por métodos formais da biblioteca otimizada de computação para sistemas ARM embarcados CMSIS-DSP, através de ferramentas open-source (Frama-C e seus diferentes \emph{plugins}). Além disso, o framework desenvolvido será empregado na validação de uma implementação de Filtro de Kalman, garantindo então a ausência de \emph{Run Time Errors} e a corretude funcional de tal algoritmo.
+    Considerando esse contexto, propõe-se neste trabalho a verificação por métodos formais da implementação em C de um controlador PID e de um filtro de média móvel, através de ferramentas open-source (Frama-C e seus diferentes \emph{plugins}), garantindo então a ausência de \emph{Run Time Errors} e a corretude funcional de tais algoritmos.
 
 
     \subsection{Objetivos}
-    Propõe-se neste trabalho, a verificação formal da biblioteca CMSIS-DSP, garantindo sua  corretude funcional e a ausência de \emph{runtime errors}. Para tal, será feita:
+    Propõe-se neste trabalho, a verificação formal dos algoritmos do controlador PID e filtro de média móvel, garantindo sua  corretude funcional e a ausência de \emph{runtime errors}. Para tal, será feita:
     \begin{itemize}
-        \item A analise do código fonte da biblioteca CMSIS-DSP, mais especificamente do \emph{kernel} de operações matriciais, e a identificação de possíveis fontes de \emph{run-time errors} através do \emph{plugin} RTE.
+        \item A analise do código fonte dos algoritmos, e a identificação de possíveis fontes de \emph{run-time errors} através do \emph{plugin} RTE.
         \item A definção de invariantes e variantes de \emph{loop}, além de \emph{bounds} para os argumentos das funções do \emph{kernel} a fim de sanar todos os Verification Cases gerados pelo \emph{plugin} RTE, garantindo então a ausência de \emph{run-time errors}.
         \item A escrita dos contratos formais, utilizando a linguagem ACSL, das funções analisadas.
         \item A Verificação da corretude funcional das funções através do \emph{pluging} EVA e WP.
@@ -332,7 +332,7 @@ fator integrativo, o que causa oscilações e demora na resposta. Existem difere
 simples e ainda assim satisfatório o \emph{clamping}, onde o integrador para de integrar o erro se extrapola um limite inferior ou superior \cite{amiri2024antiwindup}.
 \newpage
 
-\subsection{Filtro de Média Móvel}
+\subsection{Filtros Digitais}
 Filtros digitais são elementos fundamentais no processamento de sinais, utilizados para atenuar ruídos, eliminar componentes indesejadas de frequência e realçar informações relevantes em um sinal  \cite{oppenheim1999discrete}. Em sistemas de controle e aplicações embarcadas, o uso de filtros é essencial para garantir medições mais estáveis e precisas, reduzindo a influência de perturbações ou flutuações de sensores.
 
 De modo geral, os filtros digitais podem ser classificados em duas grandes categorias: Filtros de Resposta Finita ao Impulso (FIR, do inglês \emph{Finite Impulse Response}) e Filtros de Resposta Infinita ao Impulso (IIR, do inglês \emph{Infinite Impulse Response}). Essa classificação decorre da forma como o filtro responde a uma entrada do tipo impulso unitário.
