@@ -286,6 +286,54 @@ Como resultado, tem-se que garantindo a pré-condição \ref{eq:pre_condi_exempl
 
 
 \clearpage
+\subsection{Controlador PID}
+O controlador PID (\emph{Proporcional-Integral-Derivativo}) é um dos métodos de controle em malha fechada mais amplamente 
+utilizados na engenharia de controle. Sua popularidade se deve à relativa simplicidade de implementação, aliada à sua capacidade de
+fornecer bom desempenho em uma ampla gama de processos industriais e embarcados \cite{aastrom1995pid}.
+
+\vspace{10px}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/PID_loop (1).png}
+    \caption{Malha de Controle - Controlador PID.}
+    \label{fig:pid_loop}
+\end{figure}
+\vspace{10px}
+
+
+A estrutura de um controlador PID baseia-se no cálculo de uma variável de controle — chamada de 
+\emph{esforço de controle} — a partir do erro entre o valor de referência (ou valor desejado) e o valor medido do sistema (fechando, assim, a malha, como podemos ver pela figura \ref{fig:pid_loop}). 
+Esse esforço é composto por três termos: proporcional, integral e derivativo, que, combinados, ajustam a resposta do sistema de forma dinâmica \cite{ogata2010modern}.
+
+O termo proporcional atua diretamente sobre o erro instantâneo, aplicando uma correção proporcional à sua magnitude. 
+Já o termo integral é responsável por acumular o erro ao longo do tempo, eliminando o erro estacionário e garantindo
+que a saída atinja o valor desejado. Por fim, o termo derivativo antecipa o comportamento futuro do erro, reagindo à sua taxa de 
+variação, o que contribui para reduzir oscilações e melhorar a estabilidade do sistema \cite{nise2011control}.
+
+Matematicamente, a saída $u(t)$  do controlador PID é expressa por:
+\begin{align}
+    u(t) = k_pe(t) + k_i\int^t_0e(\tau)d\tau + k_d\frac{d}{dt}\Bigr(e(t)\Bigl),
+\end{align}
+
+em que $k_p$, $k_d$, $k_d$ representam, respectivamente, os ganhos proporcional, integral e derivativo. Em implementações digitais — como em sistemas embarcados — essa equação é discretizada, considerando o tempo de amostragem e métodos numéricos adequados para o cálculo da integral e da derivada.
+
+A correta sintonia dos parâmetros é fundamental para o desempenho do controlador. Ajustes inadequados podem resultar em comportamentos indesejados, como oscilações excessivas, lentidão na resposta ou
+até instabilidade. Diversos métodos de sintonia, empíricos e analíticos, foram propostos ao longo das décadas, destacando-se o método empírico de Ziegler–Nichols, um dos mais conhecidos
+\cite{ziegler1942optimum}.
+
+Dois problemas encontrados de forma recorrente na aplicação do controlador PID em sistemas físicos é a questão de saturação do esforço de controle e o \emph{windup} do integrador. 
+
+O problema de saturação do esforço de controle se dá quando o controlador requer um esforço $u(t)$ maior do que o atuador é capaz de prover. A solução mais simples utilizada é considerar a limitação
+do atuador no algoritmo do PID e saturar a saída $u(t)$ antes de ser enviada para o atuador. 
+
+Já o problema de
+\emph{windup} consiste no integrador atingir valores muito altos em momentos de erro prolongado por fatores externos, causando uma inflação do
+fator integrativo, o que causa oscilações e demora na resposta. Existem diferentes estratégias para evitar a degradação devido a \emph{windup} (chamados de métodos de \emph{anti-windup}), sendo o mais
+simples e ainda assim satisfatório o \emph{clamping}, onde o integrador para de integrar o erro se extrapola um limite inferior ou superior \cite{amiri2024antiwindup}.
+
+\subsection{Filtro de Média Móvel}
+
+\clearpage
 \section{Trabalhos Correlatos}\label{chap:projetos_correlatos}
     Nesta seção, serão brevemente revisados trabalhos que implementaram métodos de verificação formal por métodos dedutivos e por métodos de interpretação abstrata em alguma capacidade utilizando a plataforma Frama-c e seus \emph{plugins}. 
     
@@ -334,7 +382,7 @@ Frama-C (\emph{Framework for Modular Analysis of C Code}) é uma plataforma modu
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.75\linewidth]{img/frama_c_gui.png}
-    \caption{Interface Gráfica Frama-C}
+    \caption{Interface Gráfica Frama-C.}
     \label{fig:frama_c_gui}
 \end{figure}
 
@@ -344,7 +392,7 @@ Uma outra alternativa é a utilização da versão de terminal (chamada de \emph
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.75\linewidth]{img/frama_c_cli.png}
-    \caption{Interface por Terminal Frama-C}
+    \caption{Interface por Terminal Frama-C.}
     \label{fig:frama_c_cli}
 \end{figure}
 
