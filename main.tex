@@ -624,6 +624,26 @@ add_custom_target(
 A partir dessa configuração, é então possível verificar com a interface gráfica do \emph{Frama-C} tanto os RTE quanto a corretude funcional dos algoritmos.
 
 \subsubsection{Verificação de Erros em Tempo de Execução}
+O processo de verificação de erros em tempo de execução é um processo iterativo, pois originalmente não há nenhuma anotação \emph{ACSL} que limite os valores 
+envolvidos em operações aritmética, portanto a maioria operações aritméticas envolvendo  inteiros são marcadas como possíveis 
+\emph{overflow/underflow} e aquelas envolvendo variáveis de ponto flutuante são marcadas como possíveis \emph{nan}(not a number)/infinitos, 
+já as operações de acesso a ponteiros são marcadas como possiveis de acessos a \emph{null}, como podemos ver pela imagem \ref{fig:rte_pid_1}.
+
+\vspace{10px}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/rte/passo_1_primeira_rodada_rte.png}
+    \caption{Resultado Preliminar da RTE.}
+    \label{fig:rte_pid_1}
+\end{figure}
+\vspace{10px}
+
+A partir dos casos de teste que não passaram, foi feita a análise de todas as variáveis envolvidas, levando em consideração o domínio de utilização dos algoritmos
+para determinar os valores máximos e mínimos das entradas e configurações, postas então como pré-condições nos contratos das funções.
+
+Em alguns casos, entretanto, os algoritmos automáticos podem falhar por \emph{TimeOut} certos casos de teste mesmo após a especificação dos domínios se o fluxo do programa for muito extenso.
+Para esses casos, é possível utilizar \emph{asserts} e variáveis \emph{ghost} para subdividir em passos menores e verificações mais simples.
+
 \subsubsection{Verificação Funcional}
 
 \clearpage
