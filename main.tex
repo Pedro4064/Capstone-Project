@@ -644,6 +644,10 @@ para determinar os valores máximos e mínimos das entradas e configurações, p
 Em alguns casos, entretanto, os algoritmos automáticos podem falhar por \emph{TimeOut} certos casos de teste mesmo após a especificação dos domínios se o fluxo do programa for muito extenso.
 Para esses casos, é possível utilizar \emph{asserts} e variáveis \emph{ghost} para subdividir em passos menores e verificações mais simples.
 
+É importante ressaltar que para a análise de RTE do algoritmo PID, foi utilizado o modelo aritmético \emph{float} do \emph{WP}, que leva em consideração a forma como um \emph{float} é representado em memória em C, resultando então
+uma maior garantia na verificação e diminuição de falsos negativos, que ocorrem se fosse utilizado o modelo \emph{real} \cite{baudin2025wp,garion2021gentle}, que será abordado na próxima etapa. 
+Já para o algoritmo de  filtro foi utilizado e o plugin EVA, 
+
 \subsubsection{Verificação Funcional}
 
 \clearpage
