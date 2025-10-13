@@ -825,8 +825,94 @@ responsável por calcular o esforço do controlador - \emph{pid\_compute\_actuat
     \caption{Resultado das Pré-condições - RTE.}
     \label{fig:rte_pid_2}
 \end{figure}
-\subsubsection{Verificação Funcional}
+\vspace{10px}
 
+A fim de sanar todos os restantes, foi necessário uma série de \emph{asserts}, assim como destrinchar mais partes do 
+código tanto com \emph{ghost code} quanto com variáveis auxiliares.
+
+A principal estratégia abordada utilizadando os \emph{asserts} foi a induzir os \emph{solvers} automáticos a verificarem
+verdades sobre o estado das variáveis em pontos estratégicos do código, principalmente antes e depois de operações com ponto flutuante.
+O objectivo não éra definir o valor de cada variável em cada ponto, mas sim forçar os solvers a indentificarem propriedades.
+
+Já a estratégia empregada utilizando os \emph{ghost code} foi facilitar o entendimento dos \emph{asserts}, e evitando a repetição 
+de expressões algébricas muito longas (\emph{i.e.} criando variáveis auxiliares).
+
+\vspace{10px}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.5\textwidth]{img/rte/passo_3_pid_rte.png}
+    \caption{Resultado da Análise de RTE - PID: Todos Objetivos Verificados}
+    \label{fig:pid_rte_done}
+\end{figure}
+\vspace{10px}
+Pode-se então ver que após as modificações descritas (Trecho \ref{lst:codigo_pid_rte}), todos os 99 objetivos de RTE (e dois extras de efeito colateral)
+foram verificados com sucesso, Figura \ref{fig:pid_rte_done}.
+
+\newpage
+\begin{lstlisting}[style=cStyle, caption={Implementação - Comandos Auxiliares RTE}, label={lst:codigo_pid_rte}]
+    /*
+        ...
+    */
+void pid_compute_actuator_command(pid_controller* pid_con){
+    float previous_error_value = pid_con->error_value;
+    pid_con->error_value = pid_con->target_value - pid_con->controlled_value;
+    //@ ghost float error_value_range_ub = 3300.0f+FLOAT_TOL_;
+    //@ ghost float error_value_range_lb = -3300.0f-FLOAT_TOL_;
+    //@ assert error_value_range: error_value_range_lb <=pid_con->error_value<=error_value_range_ub;
+
+    float proportional_contribution = pid_con->kp * pid_con->error_value;
+    pid_con->actuator_effort = proportional_contribution;
+    //@ ghost float prop_contr_ub = (3300.0f+FLOAT_TOL_)*100.0f;
+    //@ ghost float prop_contr_lb = (-3300.0-FLOAT_TOL_)*100.0f;
+    //@ assert prop_contr_range: prop_contr_lb<=proportional_contribution<=prop_contr_ub;
+    //@ assert prop_contr_act_eff_range: prop_contr_lb<=pid_con->actuator_effort<=prop_contr_ub;
+
+    /* 
+        The range for error_value is (-3300,3300), and therefore previous_error-value
+       as well. Therefore error_diff = (-6600,6600)
+    */
+    float error_diff = pid_con->error_value - previous_error_value;
+    //@ assert error_diff_range: (float)(-6600-FLOAT_TOL_)<=error_diff<=(float)(6600+FLOAT_TOL_);
+
+    /*
+        Considering now that the minimum Ts value (which in turn generates the largest
+       error_derivative value) is 0.01 we have the following:
+    */
+    float error_derivative = (error_diff)/pid_con->Ts;
+    //@ assert error_derivative_range: (float)(-660000-FLOAT_TOL_)<=error_derivative<=(float)(660000+FLOAT_TOL_);
+    float derivative_contribution = pid_con->kd * (error_derivative);
+    //@ ghost float deriv_contr_ub = (660000.0f+2*FLOAT_TOL_)*100.0f;
+    //@ ghost float deriv_contr_lb = (-660000.0f-2*FLOAT_TOL_)*100.0f;
+    //@ assert deriv_contr_range: deriv_contr_lb<=derivative_contribution<=deriv_contr_ub;
+    pid_con->actuator_effort += derivative_contribution;
+    //@ assert deriv_contr_act_eff_range: deriv_contr_lb+prop_contr_lb<=pid_con->actuator_effort<=deriv_contr_ub+prop_contr_ub;
+
+    pid_integral_error(pid_con, previous_error_value);
+    float integral_contribution = pid_con->ki * pid_con->error_integral;
+    //@ ghost float integ_contr_ub = 100.0f * pid_con->error_integral_ub;
+    //@ ghost float integ_contr_lb = 100.0f * pid_con->error_integral_lb;
+    //@ assert error_integral_range: (float)pid_con->error_integral_lb <= (float)pid_con->error_integral <= (float)pid_con->error_integral_ub;
+    //@ assert integral_contr_range: integ_contr_lb<= integral_contribution <= integ_contr_ub;
+    //@ assert \is_finite(pid_con->actuator_effort);
+    //@ assert \is_finite(integral_contribution);
+
+    //@ assert deriv_contr_lb+prop_contr_lb<=pid_con->actuator_effort<=deriv_contr_ub+prop_contr_ub;
+    //@ assert deriv_contr_lb+prop_contr_lb+integ_contr_lb <= pid_con->actuator_effort + integral_contribution<=deriv_contr_ub+prop_contr_ub+integ_contr_ub;
+    //@ assert -1e10f <= pid_con->actuator_effort <= 1e10f;
+    //@ assert -1e10f <= integral_contribution <= 1e10f;
+    float total_actuator_effort = pid_con->actuator_effort + integral_contribution;
+    //@ assert deriv_plus_int_contr_act_eff_range: (float)(deriv_contr_lb+prop_contr_lb+integ_contr_lb) <=total_actuator_effort<=(float)(deriv_contr_ub+prop_contr_ub+integ_contr_ub);
+    pid_con->actuator_effort = total_actuator_effort;
+    if (pid_con->actuator_effort >= pid_con->controller_saturation)
+        pid_con->actuator_effort = pid_con->controller_saturation;
+    else if (pid_con->actuator_effort < 0.0f)
+        pid_con->actuator_effort = 0.0f;
+    else
+        pid_con->actuator_effort = pid_con->actuator_effort;
+}
+\end{lstlisting}
+
+\subsubsection{Verificação Funcional}
 \subsection{Filtro Média Móvel}
 \subsubsection{Verificação de RTE}
 \subsubsection{Verificação Funcional}
