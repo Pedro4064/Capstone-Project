@@ -746,6 +746,17 @@ Como pode ser visto pela Figura \ref{fig:rte_pid_1}, sem nenhuma anotação \emp
 são passíveis de dar erro em tempo de execução. A fim de evitar isso, então, o primeiro passo é adicionar pré-condições de validade de ponteiro e 
 de faixa para as variáveis. 
 
+Com o objectivo de evitar repetição, foi então criado o predicado \emph{float\_finite\_and\_in\_range}, que visa garantir a faixa de valores:
+
+\begin{lstlisting}[style=cStyle, caption={Implementação - faixa e finitude de variáveis float}]
+    /*@
+       predicate float_finite_and_in_range(float val, float low_bound, float up_bound) = 
+        \is_finite(val) && (low_bound <= val <= up_bound);
+    */
+\end{lstlisting}
+
+E com isso as seguintes pré-condiões foram estabelecidas:
+
 \subsubsection{Verificação Funcional}
 
 \subsection{Filtro Média Móvel}
