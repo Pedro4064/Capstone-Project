@@ -748,7 +748,7 @@ de faixa para as variáveis.
 
 Com o objectivo de evitar repetição, foi então criado o predicado \emph{float\_finite\_and\_in\_range}, que visa garantir a faixa de valores:
 
-\begin{lstlisting}[style=cStyle, caption={Implementação - faixa e finitude de variáveis float}]
+\begin{lstlisting}[style=cStyle, caption={Implementação - Faixa e Finitude de Variáveis Float.}]
     /*@
        predicate float_finite_and_in_range(float val, float low_bound, float up_bound) = 
         \is_finite(val) && (low_bound <= val <= up_bound);
@@ -756,7 +756,7 @@ Com o objectivo de evitar repetição, foi então criado o predicado \emph{float
 \end{lstlisting}
 
 E com isso as seguintes pré-condiões foram estabelecidas:
-\begin{lstlisting}[style=cStyle, caption={Implementação - Pré-condições RTE}]
+\begin{lstlisting}[style=cStyle, caption={Implementação - Pré-condições RTE.}]
 /*@
     requires valid_pointer: \valid(pid_con); 
     requires valid_Ts: float_finite_and_in_range(pid_con->Ts, 0.01f, 1.0f);
@@ -841,7 +841,7 @@ de expressões algébricas muito longas (\emph{i.e.} criando variáveis auxiliar
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.5\textwidth]{img/rte/passo_3_pid_rte.png}
-    \caption{Resultado da Análise de RTE - PID: Todos Objetivos Verificados}
+    \caption{Resultado da Análise de RTE - PID: Todos Objetivos Verificados.}
     \label{fig:pid_rte_done}
 \end{figure}
 \vspace{10px}
@@ -849,7 +849,7 @@ Pode-se então ver que após as modificações descritas (Trecho \ref{lst:codigo
 foram verificados com sucesso, Figura \ref{fig:pid_rte_done}.
 
 \newpage
-\begin{lstlisting}[style=cStyle, caption={Implementação - Comandos Auxiliares RTE}, label={lst:codigo_pid_rte}]
+\begin{lstlisting}[style=cStyle, caption={Implementação - Comandos Auxiliares RTE.}, label={lst:codigo_pid_rte}]
     /*
         ...
     */
@@ -993,14 +993,22 @@ void pid_compute_actuator_command(pid_controller* pid_con){...}
 \end{lstlisting}
 \vspace{10px}
 
-E com essas adições aos contratos foi possivel provar de forma 100\% automática a corretude funcional
-da implementação do controlador PID.
+A fim de evitar repetições e facilitar o entendimento dos contratos, foi desenvolvido duas funções lógicas para o tratamento 
+da integral do erro, sendo elas a \emph{integral}, que calcula o novo ponto da integral trapezoidal, e a \emph{bounded\_integrator}
+que calcula a integral comleta assim como o mecanismo de \emph{clamping}.
+
 \vspace{10px}
 \begin{figure}[h!]
     \centering 
     \includegraphics[width=0.5\textwidth]{img/rte/passo_final_pid_functional.png}
-    \caption{Resultado da Verificação Funcional - Controlador PID}
+    \caption{Resultado da Verificação Funcional - Controlador PID.}
+    \label{fig:prova_pid_func}
 \end{figure}
+\vspace{10px}
+
+E com essas adições aos contratos foi possivel provar de forma 100\% automática a corretude funcional
+da implementação do controlador PID (Figura \ref{fig:prova_pid_func}).
+
 
 \newpage
 \subsection{Filtro Média Móvel}
