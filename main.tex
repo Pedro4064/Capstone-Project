@@ -815,7 +815,7 @@ Com a razão por trás dessas faixas sendo:
     \item A faixa dos limites superiores e inferiores do interador é partindo do calculo do pior cenário, esse sendo os maiores erros (em módulo) por 20 segundos, com o menor $T_s$.
 \end{itemize}
 
-Essas pré-condições são suficientes para a funãção \emph{pid\_integral\_error}, mas não para a função principal 
+Essas pré-condições são suficientes para a função \emph{pid\_integral\_error}, mas não para a função principal 
 responsável por calcular o esforço do controlador - \emph{pid\_compute\_actuator\_command} - como podemos ver pela figura
 \ref{fig:rte_pid_2}.
 \vspace{10px}
@@ -913,6 +913,96 @@ void pid_compute_actuator_command(pid_controller* pid_con){
 \end{lstlisting}
 
 \subsubsection{Verificação Funcional}
+Para o processo de verificação funcional, é necessário estabelecermos todas as propriedades esperadas para cada uma das funções, de forma independente de como foi feita a implementação, a fim de
+evitar viéses de confirmação. 
+
+Para a função \emph{pid\_integral\_error}, é esperado que ela atribua à variável \emph{error\_integral}, que guarda o valor da integral do erro:
+\begin{itemize} 
+    \item  Um valor dentro dos limites estipulados pelo usuário.
+    \item  O valor da integral do erro pelo método trapezoidal $( I_k = I_{k-1} + \frac{T_s}{2}(e_k + e_{k-1}) )$, desde que não ultrapasse os limites.
+\end{itemize} 
+
+Para tal foi posto no contrato de tal função:
+\vspace{10px}
+\begin{lstlisting}[style=cStyle, caption={Implementação - Contrato para o Calculo da Integral do Erro.}, label={lst:codigo_pid_int_error}]
+/*@ 
+    logic float integral(float a, float b, float delta_x) = 
+        (float)(delta_x * ((a + b)/2));
+
+    logic float bounded_integrator(pid_controller* pid_con, float old_error_integral, float previous_error_value) =
+        (old_error_integral + integral(pid_con->error_value, previous_error_value, pid_con->Ts) > pid_con->error_integral_ub) ? pid_con->error_integral_ub :
+        (old_error_integral + integral(pid_con->error_value, previous_error_value, pid_con->Ts) < pid_con->error_integral_lb) ? pid_con->error_integral_lb :
+        (float)(old_error_integral + integral(pid_con->error_value, previous_error_value, pid_con->Ts));
+*/
+
+/*@
+...
+assigns pid_con->error_integral;
+    ensures (float)pid_con->error_integral_lb <= (float)pid_con->error_integral <= (float)pid_con->error_integral_ub;
+    ensures \is_finite(pid_con->error_integral);
+
+    behavior integrator_ub:
+        assumes pid_con->error_integral + integral(pid_con->error_value, previous_error_value, pid_con->Ts) > pid_con->error_integral_ub;
+        ensures pid_con->error_integral == pid_con->error_integral_ub;
+    behavior integrator_lb:
+        assumes pid_con->error_integral + integral(pid_con->error_value, previous_error_value, pid_con->Ts) < pid_con->error_integral_lb;
+        ensures pid_con->error_integral == pid_con->error_integral_lb;
+    behavior integrator_ok:
+        assumes pid_con->error_integral + integral(pid_con->error_value, previous_error_value, pid_con->Ts) <= pid_con->error_integral_ub &&
+                pid_con->error_integral + integral(pid_con->error_value, previous_error_value, pid_con->Ts) >= pid_con->error_integral_lb;
+        ensures pid_con->error_integral == \old(pid_con->error_integral) + integral(pid_con->error_value, previous_error_value, pid_con->Ts);
+    complete behaviors;
+    disjoint behaviors;
+*/
+void pid_integral_error(pid_controller* pid_con, float previous_error_value){...}
+\end{lstlisting}
+\vspace{10px}
+
+Já para a função \emph{pid\_compute\_actuator\_command}, responsável pelo calculo do esforço de controle, é esperado:
+\begin{itemize}
+    \item Que calcule o erro como sendo a diferença entre o valor alvo e estado atual.
+    \item Que seu integrador calcule a integral do erro no tempo, pelo método trapezoidal.
+    \item Que seu integrador seja mantido na faixa especificada.
+    \item Que calcule a derivada do erro pelo método da diferença de Newton $de(t)/dt \approx (f(x+h)-f(x))/h$.
+    \item Que o esforço do atuador seja o resultado da soma das 3 componentes do PID, saturando se necessário.
+\end{itemize}
+
+\newpage
+Para tal foi adicionado ao seu contrato o Trecho \ref{lst:codigo_pid_act_effort}.
+
+\vspace{10px}
+\begin{lstlisting}[style=cStyle, caption={Implementação - Contrato para o Calculo da Integral do Erro.}, label={lst:codigo_pid_act_effort}]
+/*@ 
+    ...
+    assigns pid_con->actuator_effort;
+    assigns pid_con->error_value;
+    assigns pid_con->error_integral;
+
+    ensures pid_con->error_value == pid_con->target_value - pid_con->controlled_value;
+    ensures pid_con->error_integral == bounded_integrator(pid_con, \old(pid_con->error_integral), \old(pid_con->error_value));
+    ensures 0.0f<=pid_con->actuator_effort <= pid_con->controller_saturation;
+    ensures \let e = (pid_con->target_value - pid_con->controlled_value);
+            \let p = pid_con->kp * e;
+            \let d = pid_con->kd * ((e - \old(pid_con->error_value)) / pid_con->Ts);
+            \let i = pid_con->ki * bounded_integrator(pid_con, \old(pid_con->error_integral), \old(pid_con->error_value));
+            \let effort = (float)(p + i + d);
+            (pid_con->actuator_effort == ((effort >= pid_con->controller_saturation) ? pid_con->controller_saturation : 
+                                         ((effort < 0.0f) ? 0.0f : effort)));
+*/
+void pid_compute_actuator_command(pid_controller* pid_con){...}
+\end{lstlisting}
+\vspace{10px}
+
+E com essas adições aos contratos foi possivel provar de forma 100\% automática a corretude funcional
+da implementação do controlador PID.
+\vspace{10px}
+\begin{figure}[h!]
+    \centering 
+    \includegraphics[width=0.5\textwidth]{img/rte/passo_final_pid_functional.png}
+    \caption{Resultado da Verificação Funcional - Controlador PID}
+\end{figure}
+
+\newpage
 \subsection{Filtro Média Móvel}
 \subsubsection{Verificação de RTE}
 \subsubsection{Verificação Funcional}
