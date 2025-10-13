@@ -60,6 +60,23 @@
 \addbibresource{biblography.bib}
 
 \renewcommand*\contentsname{Sumário}
+\lstdefinestyle{cStyle}{
+    language=c,       % Linguagem para destacar CMake
+    basicstyle=\ttfamily\footnotesize, % fonte monoespaçada menor
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{gray}\itshape,
+    stringstyle=\color{red},
+    numbers=left,
+    numberstyle=\tiny,
+    stepnumber=1,
+    numbersep=5pt,
+    tabsize=4,
+    breaklines=true,
+    showstringspaces=false,
+    frame=single,                 % coloca uma borda ao redor
+    backgroundcolor=\color{gray!10}, % fundo levemente cinza
+    captionpos=b
+}
 
 \lstdefinestyle{cmakeStyle}{
     language=sh,       % Linguagem para destacar CMake
@@ -664,6 +681,76 @@ números de ponto flutuante através da sua representação matemática pura \ci
 
 \clearpage
 \section{Resultados}\label{chap:resultados}
+
+Nesta seção serão apresentados os resultados das etapas de verificação dos algoritmos PID e filtro média móvel, assim como os contratos 
+e especificações utilizadas.
+\subsection{Controlador PID}
+O fonte código que implementa um controlador PID, no contexto de um sistema embarcado controlando um sinal de tensão 
+analógico com amplitude de $-3.300mV$ a $+3.300mV$ e tendo como atuador um conversor digital analógico (DAC) de amplitude $0mV$ a $3.300mV$ é representado abaixo:
+
+\vspace{10px}
+\begin{lstlisting}[style=cStyle, caption={Implementação - Controlador PID com Clamping e Saturação.}]
+typedef struct PID_CONTROLLER {
+  float ki;                    /* Integral Gain */
+  float kp;                    /* Proportional Gain */
+  float kd;                    /* Derivative Gain */
+  float controller_saturation; /* The output variable saturation value */
+  float target_value;          /* Target value of the controlled variable */
+  float controlled_value;      /* Value of the controlled variable */
+  float error_value;           /* Error between target and controlled value */
+  float error_integral;        /* Integral of the error */
+  float error_integral_ub;     /* Upper bound of error integral */
+  float error_integral_lb;     /* Lower bound of error integral */
+  float actuator_effort;       /* Value for the actuator effort */
+  float Ts;                    /* Controller sampling/update period, in ms */
+} pid_controller; 
+
+void pid_integral_error(pid_controller* pid_con, float previous_error_value){
+    float current_integral = pid_con->Ts * ((previous_error_value + pid_con->error_value)/2);
+    if(pid_con->error_integral + current_integral > pid_con->error_integral_ub)
+        pid_con->error_integral = pid_con->error_integral_ub;
+    else if(pid_con->error_integral + current_integral < pid_con->error_integral_lb)
+        pid_con->error_integral = pid_con->error_integral_lb;
+    else 
+        pid_con->error_integral += current_integral;
+}
+
+void pid_compute_actuator_command(pid_controller* pid_con){
+    float previous_error_value = pid_con->error_value;
+    pid_con->error_value = pid_con->target_value - pid_con->controlled_value;
+
+    float proportional_contribution = pid_con->kp * pid_con->error_value;
+    pid_con->actuator_effort = proportional_contribution;
+
+    float error_diff = pid_con->error_value - previous_error_value;
+
+    float error_derivative = (error_diff)/pid_con->Ts;
+    float derivative_contribution = pid_con->kd * (error_derivative);
+    pid_con->actuator_effort += derivative_contribution;
+
+    pid_integral_error(pid_con, previous_error_value);
+    float integral_contribution = pid_con->ki * pid_con->error_integral;
+
+    pid_con->actuator_effort += integral_contribution;
+    if (pid_con->actuator_effort >= pid_con->controller_saturation) {
+        pid_con->actuator_effort = pid_con->controller_saturation;
+    } else if (pid_con->actuator_effort < 0.0f) {
+        pid_con->actuator_effort = 0.0f;
+    } else {
+        pid_con->actuator_effort = pid_con->actuator_effort;
+    }
+}
+\end{lstlisting}
+\subsubsection{Verificação de RTE}
+Como pode ser visto pela Figura \ref{fig:rte_pid_1}, sem nenhuma anotação \emph{ACSL}, todas as operações aritméticas e de acesso a ponteiros 
+são passíveis de dar erro em tempo de execução. A fim de evitar isso, então, o primeiro passo é adicionar pré-condições de validade de ponteiro e 
+de faixa para as variáveis. 
+
+\subsubsection{Verificação Funcional}
+
+\subsection{Filtro Média Móvel}
+\subsubsection{Verificação de RTE}
+\subsubsection{Verificação Funcional}
 
 \newpage
 \printbibliography[title={Referências}]
