@@ -644,11 +644,23 @@ para determinar os valores máximos e mínimos das entradas e configurações, p
 Em alguns casos, entretanto, os algoritmos automáticos podem falhar por \emph{TimeOut} certos casos de teste mesmo após a especificação dos domínios se o fluxo do programa for muito extenso.
 Para esses casos, é possível utilizar \emph{asserts} e variáveis \emph{ghost} para subdividir em passos menores e verificações mais simples.
 
-É importante ressaltar que para a análise de RTE do algoritmo PID, foi utilizado o modelo aritmético \emph{float} do \emph{WP}, que leva em consideração a forma como um \emph{float} é representado em memória em C, resultando então
+É importante ressaltar que para a análise de RTE do algoritmo PID, foi utilizado o modelo aritmético \emph{float} do \emph{WP-RTE}, que leva em consideração a forma como um \emph{float} é representado em memória em C, resultando então
 uma maior garantia na verificação e diminuição de falsos negativos, que ocorrem se fosse utilizado o modelo \emph{real} \cite{baudin2025wp,garion2021gentle}, que será abordado na próxima etapa. 
-Já para o algoritmo de  filtro foi utilizado e o plugin EVA, 
+Já para o algoritmo de  filtro foi utilizado e o plugin EVA para a análise de RTE. 
 
 \subsubsection{Verificação Funcional}
+Para a verificação funcional, foram definidas todas as propriedades que são esperadas de cada uma das funções dos algoritmos,
+e traduzidas em pós-condições (\emph{ensures}) e efeitos colaterais (\emph{assigns}) nos contratos das funções.
+Além disso, foram utilizados tanto lemmas quanto funções lógicas, predicados e \emph{ghost codes} a fim de tentar reduzir a 
+verbosidade e facilitar a leitura dos contratos.
+
+Análogo ao processo de verificação de RTE, o processo de verificação funcional também é um processo iterativo, principalmente para 
+programas maiores e mais complexos, onde pode ser necessário a utilização de \emph{asserts} e \emph{ghost code} para tornar as 
+os casos de verificação mais simples e descritivos para os \emph{SMT}.
+
+Por fim, como o foco da análise funcional é garantir a corretude da lógica aplicada, foi utilizado o \emph{plug-in} \emph{WP} com o modelo aritmético \emph{real},
+que apesar de não ser recomendado para análise de erros em tempo de execução é amplamente utilizado para a análise matemática/funcional por tratar os
+números de ponto flutuante através da sua representação matemática pura \cite{perrone2016verifying}.
 
 \clearpage
 \section{Resultados}\label{chap:resultados}
