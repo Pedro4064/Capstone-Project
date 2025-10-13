@@ -756,7 +756,75 @@ Com o objectivo de evitar repetição, foi então criado o predicado \emph{float
 \end{lstlisting}
 
 E com isso as seguintes pré-condiões foram estabelecidas:
+\begin{lstlisting}[style=cStyle, caption={Implementação - Pré-condições RTE}]
+/*@
+    requires valid_pointer: \valid(pid_con); 
+    requires valid_Ts: float_finite_and_in_range(pid_con->Ts, 0.01f, 1.0f);
+    requires valid_previous_error: 
+        float_finite_and_in_range(previous_error_value, (float)-3300, (float)3300);
+    requires valid_error: 
+        float_finite_and_in_range(pid_con->error_value,(float)(-3300.0-FLOAT_TOL_),(float)(3300.0f+FLOAT_TOL_));
+    requires valid_integrator_ub: 
+        float_finite_and_in_range(pid_con->error_integral_ub, 
+                                  0.0f, (float)(2000.0f*0.5f*3300.0f));
+    requires valid_integrator_lb: 
+        float_finite_and_in_range(pid_con->error_integral_lb,
+                                 (float)((-20.0f/0.01)*0.5f*(float)MAX_VOLTAGE),0.0f);
+    requires valid_integrator_error: 
+        float_finite_and_in_range(pid_con->error_integral, 
+                                  pid_con->error_integral_lb, pid_con->error_integral_ub);
+    assigns pid_con->error_integral;
+    ensures (float)pid_con->error_integral_lb <= 
+            (float)pid_con->error_integral <= (float)pid_con->error_integral_ub;
+    ensures \is_finite(pid_con->error_integral);
+*/
+void pid_integral_error(pid_controller* pid_con, float previous_error_value){...}
 
+/*@
+    requires valid_pointer: \valid(pid_con);
+    requires valid_target_value: 
+        float_finite_and_in_range(pid_con->target_value, 0.0f, 3300.0f);
+    requires valid_controlled_value:
+        float_finite_and_in_range(pid_con->controlled_value, 0.0f, 3300.0f);
+    requires valid_saturation_value: 
+        float_finite_and_in_range(pid_con->controller_saturation, 0.0f, 3300.0f);
+    requires valid_error: 
+        float_finite_and_in_range(pid_con->error_value, (float)-3300.0, 3300.0f);
+    requires valid_kp: float_finite_and_in_range(pid_con->kp, 0.0f, 100.0f);
+    requires valid_ki: float_finite_and_in_range(pid_con->ki, 0.0f, 100.0f);
+    requires valid_kd: float_finite_and_in_range(pid_con->kd, 0.0f, 100.0f);
+    requires valid_Ts: float_finite_and_in_range(pid_con->Ts, 0.01f, 1.0f);
+    requires valid_integrator_ub: 
+        float_finite_and_in_range(pid_con->error_integral_ub, 
+                                  0.0f, (float)(2000.0f*0.5f*3300.0f));
+    requires valid_integrator_lb: 
+        float_finite_and_in_range(pid_con->error_integral_lb, 
+                                 (float)((-20.0f/0.01)*0.5f*(float)MAX_VOLTAGE), 0.0f);
+    requires valid_integrator_error: 
+        float_finite_and_in_range(pid_con->error_integral,
+                                  pid_con->error_integral_lb, pid_con->error_integral_ub);
+*/
+void pid_compute_actuator_command(pid_controller* pid_con){...}
+\end{lstlisting}
+
+Com a razão por trás dessas faixas sendo:
+\begin{itemize}
+    \item Tempo de amostragem $T_s$ comumente usado em sistemas embarcados - $10ms$ a $1s$.
+    \item A faixa do atuador é a de um DAC comumente encontrado em sistemas embacarados - $0mV$ a $3.300mV$.
+    \item A faixa do valor de entrada é a de um ADC comumente encontrado em sistemas embacarados - $0mV$ a $3.300mV$.
+    \item A faixa dos limites superiores e inferiores do interador é partindo do calculo do pior cenário, esse sendo os maiores erros (em módulo) por 20 segundos, com o menor $T_s$.
+\end{itemize}
+
+Essas pré-condições são suficientes para a funãção \emph{pid\_integral\_error}, mas não para a função principal 
+responsável por calcular o esforço do controlador - \emph{pid\_compute\_actuator\_command} - como podemos ver pela figura
+\ref{fig:rte_pid_2}.
+\vspace{10px}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/rte/passo_2_primeira_rodada_rte.png}
+    \caption{Resultado das Pré-condições - RTE.}
+    \label{fig:rte_pid_2}
+\end{figure}
 \subsubsection{Verificação Funcional}
 
 \subsection{Filtro Média Móvel}
