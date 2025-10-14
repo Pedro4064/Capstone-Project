@@ -685,8 +685,8 @@ números de ponto flutuante através da sua representação matemática pura \ci
 Nesta seção serão apresentados os resultados das etapas de verificação dos algoritmos PID e filtro média móvel, assim como os contratos 
 e especificações utilizadas.
 \subsection{Controlador PID}
-O fonte código que implementa um controlador PID, no contexto de um sistema embarcado controlando um sinal de tensão 
-analógico com amplitude de $-3.300mV$ a $+3.300mV$ e tendo como atuador um conversor digital analógico (DAC) de amplitude $0mV$ a $3.300mV$ é representado abaixo:
+O  código fonte que implementa um controlador PID, no contexto de um sistema embarcado controlando um sinal de tensão 
+analógico com amplitude de $0mV$ a $+3.300mV$, aquisitado por um conversor digital analógico (ADC), e tendo como atuador um conversor digital analógico (DAC) de amplitude $0mV$ a $3.300mV$ é representado abaixo:
 
 \vspace{10px}
 \begin{lstlisting}[style=cStyle, caption={Implementação - Controlador PID com Clamping e Saturação.}]
@@ -830,9 +830,9 @@ responsável por calcular o esforço do controlador - \emph{pid\_compute\_actuat
 A fim de sanar todos os restantes, foi necessário uma série de \emph{asserts}, assim como destrinchar mais partes do 
 código tanto com \emph{ghost code} quanto com variáveis auxiliares.
 
-A principal estratégia abordada utilizadando os \emph{asserts} foi a induzir os \emph{solvers} automáticos a verificarem
-verdades sobre o estado das variáveis em pontos estratégicos do código, principalmente antes e depois de operações com ponto flutuante.
-O objectivo não éra definir o valor de cada variável em cada ponto, mas sim forçar os solvers a indentificarem propriedades.
+Ao utilizar \emph{asserts}, o objetivo foi a induzir os \emph{solvers} automáticos a verificarem
+verdades sobre o estado das variáveis em pontos estratégicos do código, principalmente antes e depois de operações com ponto flutuante, resultando 
+no reconhecimento de propriedades por parte dos algoritmos de verificação que simplificam o processo de prova.
 
 Já a estratégia empregada utilizando os \emph{ghost code} foi facilitar o entendimento dos \emph{asserts}, e evitando a repetição 
 de expressões algébricas muito longas (\emph{i.e.} criando variáveis auxiliares).
