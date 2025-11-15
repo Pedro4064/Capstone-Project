@@ -1321,6 +1321,13 @@ funcional. Ao mesmo tempo, porém, essa transição aumentou a dependência da s
 
 Este trabalho apresentou em dois diferentes cenários uma metodologia que vem ganhando cada vez mais notoriedade, principalmente no setor aeronáutico,
 que visa garantir a ausência de erros em tempo de execução e a corretude funcional dos programas, uitilizando ferramentas open-source: A Verificação Formal.
+
+No primeiro cenário foi possível verificar a ausência de erros em tempo de execução e a corretude funcional através do \emph{Frama-C} e seus plugins \emph{WP} e \emph{RTE} da implementação de um
+Controlador PID.
+A verificação, mesmo tendo êxito, levantou algumas peculiaridades do estado atual das ferramentas utilizadas que resultaram em um trabalho considerável para garantir que \emph{solvers} automáticos
+fossem capazes de analizar corretamente o código fonte sem a necessidade de provas manuais. Tal trabalho está diretamente ligado as 
+peculiaridades da forma como pontos flutuantes e seu arredondamento são representados tanto na linguagem C quanto em processadores modernos. 
+
 \newpage
 \printbibliography[title={Referências}]
 
