@@ -1085,13 +1085,40 @@ definido na imagem \ref{lst:cmake}, e obtendo um resultado análogo aquele das p
 de garantia de finitude nas operações com variáveis de ponto flutuante, mais especificametne na função \emph{f\_sum}, além de um erro
 referente à falta da implementação ou de uma especificação para a função da HAL \emph{rtos\_sample\_adc}, como observado na figura abaixo:
 
-\vspace{10px}
+\vspace{5px}
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.8\textwidth]{img/rte/passo_1_filtro_rte.png}
     \caption{Resultado Preliminar RTE EVA - Filtro.}
 \end{figure}
-\vspace{10px}
+\vspace{5px}
+
+Analogamente a como foi feito para o controlador PID, o primeiro passo a ser feito é estabelecer as faixas de possíveis valores para as variáveis. 
+Neste caso específico, a forma mais simples é criar um contrato para a função \emph{rtos\_sample\_adc} especificando que 
+o ADC do micro-controlador sempre retorna valores entre $0mV$ e $3300mV$ e finitos, sanando assim, também, a questão de não 
+se ter a implementação dessa função da HAL.
+
+Algo, entretanto, que é necessário devido a uma limitação do EVA - como observado por Virgile em \cite{Virgile2025_framaC_EVA} - é de 
+ter uma definição substituta e simplificada para a função \emph{rtos\_burst\_sample\_adc}, chamada \emph{stub}, a fim de garantir que o 
+\emph{plugin} analise todos os elementos da \emph{array}, tendo em vista a dificuldade do sistema de quantificar elementos em memória apartir somente de 
+calusulas de \emph{ensures}.
+
+Resultando, então, nas definições estabelecidas na figura abaixo e obtendo nenhum erro em tempo de execução, como visto pela figura \ref{fig:success_rte_filtro}.
+\begin{lstlisting}[style=cStyle, caption={Faixa de Valores e Contratos Limitadores - Média Móvel.}, label={lst:utilizacao_filtro}]
+/*@ requires \valid(dest); assigns *dest \from \nothing;
+    ensures \is_finite(*dest) && 0.0f <= *dest <= 3300.0f;*/
+extern void rtos_sample_adc(float* dest);
+void rtos_burst_sample_adc(float* raw_data_buffer, int n_samples){
+  //@ loop unroll n_samples;
+  for (int i = 0; i < n_samples; i++) rtos_sample_adc(&raw_data_buffer[i]);
+}
+\end{lstlisting}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{img/rte/passo_2_resulte_filtro.png}
+    \caption{Resultado da Verificação de RTE - EVA.}
+    \label{fig:success_rte_filtro}
+\end{figure}
 
 
 \subsubsection{Verificação Funcional}
