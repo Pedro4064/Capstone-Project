@@ -611,7 +611,7 @@ quaisquer deduções auxiliares para a verificação funcional.
 \subsubsection{Preparação do Código Fonte e Ambiente}
 A fim de facilitar o fluxo de verificação dos algoritmos, foi integrado ao sistema de \emph{build} -\emph{cmake}- tanto o processo de compilação quanto de verificação:
 
-\begin{lstlisting}[style=cmakeStyle, caption={Parte do CMake Utilizado.}]
+\begin{lstlisting}[style=cmakeStyle, caption={Parte do CMake Utilizado.}, label={lst:cmake}]
 ...
 set(SRC_FILES 
     ${CMAKE_SOURCE_DIR}/src/main.c 
@@ -619,7 +619,6 @@ set(SRC_FILES
     ${CMAKE_SOURCE_DIR}/src/filter.c
     )
 ...
-# opam init && eval $(opam env)
 add_custom_target(
     verify_rte
     COMMAND frama-c-gui -json-compilation-database ${COMPILE_COMMANDS_JSON_PATH} \
@@ -636,6 +635,11 @@ add_custom_target(
                                                    -wp -wp-timeout 100\
                                                    -wp-model real 
                                                    -wp-prover alt-ergo,z3,cvc5)
+add_custom_target(
+    verify_rte_eva
+    COMMAND frama-c-gui -json-compilation-database ${COMPILE_COMMANDS_JSON_PATH}\
+                                                   ${SRC_FILES} -eva -main main )
+ 
 ...
 \end{lstlisting}
 A partir dessa configuração, é então possível verificar com a interface gráfica do \emph{Frama-C} tanto os RTE quanto a corretude funcional dos algoritmos.
@@ -1012,7 +1016,84 @@ da implementação do controlador PID (Figura \ref{fig:prova_pid_func}).
 
 \newpage
 \subsection{Filtro Média Móvel}
+O código fonte  que  implementa um filtro de médio móvel simples, e já dividod em funções menores a fim de 
+facilitar o processo de verificação é apresentado abaxo:
+\vspace{10px}
+\begin{lstlisting}[style=cStyle, caption={Implementação - Média Móvel.}, label={lst:codigo_media_movel_sem_acsl}]
+float f_sum(float* values, int length){
+    float result = 0.0f;
+    for(int i=0; i<length; i++)
+        result+=values[i];
+    return result;
+}
+
+
+void f_moving_average_filter(float* raw_data, unsigned int raw_data_length,
+                          float* filtered_data, unsigned int filtered_data_length,
+                          unsigned int window_size){
+    
+    for (unsigned int i = 0; i < filtered_data_length; i++) {
+        filtered_data[i] = f_sum(raw_data+i, window_size)/window_size;
+    }
+}
+\end{lstlisting}
+\vspace{10px}
 \subsubsection{Verificação de RTE}
+De forma diferente ao que foi feito para a análise de erros em tempo de execução do controlador
+PID, para a análise de RTE do filtro foi utilizado o \emph{plugin} EVA, que utiliza métodos de interpretação abstrata. Portanto é necessário
+primeiramente estabelecer o contexto em que a função é utilizado.
+
+Seguindo o contexto de sistemas embarcados, foi considerado que a aplicação onde será utilizado o filtro 
+consiste no pós processamento de uma série de amostras feitas por um ADC em \emph{burst mode}, onde serão capturados
+50 pontos, e será utilizado uma janela de 10 amostras. 
+
+Ademais, como é de praxe diferentes sistemas operacionais de tempo real (RTOS) e fabricantes de 
+micro-controladores disponibilizarem abstrações para a interface com periféricos como ADC - chamados
+de Hardware Abstraction Layers, ou HAL - também será definido a assinatura de uma função de leitura do ADC e 
+uma para leitura em \emph{burst mode}, chamadas de \emph{rtos\_sample\_adc} e \emph{rtos\_burst\_sample\_adc},
+respectivamente, a fim de demostrar como que é posível validar códigos fontes que utilizam bibliotecas de terceiros, 
+sem necessariamente preocupar-se com os detalhes de sua implementação - mantendo assim o nível de abstração esperado.
+
+\vspace{10px}
+\begin{lstlisting}[style=cStyle, caption={Utilização - Média Móvel.}, label={lst:utilizacao_filtro}]
+#include "filter.h"
+#include <string.h>
+
+
+
+extern void rtos_sample_adc(float* dest);
+
+void rtos_burst_sample_adc(float* raw_data_buffer, int n_samples){
+  for (int i = 0; i < n_samples; i++) rtos_sample_adc(&raw_data_buffer[i]);
+}
+
+int main(void) {
+  float raw_data[50]; 
+  float filtered_data[41]; 
+  memset(raw_data, 0, sizeof(raw_data));
+  memset(filtered_data, 0, sizeof(filtered_data));
+
+  rtos_burst_sample_adc(raw_data, 50);
+
+  f_moving_average_filter(raw_data, 50, filtered_data, 41, 10);
+}
+\end{lstlisting}
+\vspace{10px}
+
+A partir desse contexto, foi possível rodar a análise de erro em tempo de execução incial através do comando \emph{verify\_rte\_eva},
+definido na imagem \ref{lst:cmake}, e obtendo um resultado análogo aquele das primeiras rodadas da análise do controlador PID: Erros 
+de garantia de finitude nas operações com variáveis de ponto flutuante, mais especificametne na função \emph{f\_sum}, além de um erro
+referente à falta da implementação ou de uma especificação para a função da HAL \emph{rtos\_sample\_adc}, como observado na figura abaixo:
+
+\vspace{10px}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{img/rte/passo_1_filtro_rte.png}
+    \caption{Resultado Preliminar RTE EVA - Filtro.}
+\end{figure}
+\vspace{10px}
+
+
 \subsubsection{Verificação Funcional}
 
 \newpage
