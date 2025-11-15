@@ -1233,6 +1233,84 @@ void f_moving_average_filter(float* raw_data, unsigned int raw_data_length,
 \end{lstlisting}
 \vspace{5px}
 
+Essas definições, entretanto, ainda não são suficientes para os \emph{solvers} validarem 
+as invariantes de loop da função \emph{f\_moving\_average\_filter} e, por conseguinte, a sua pós condição.
+\vspace{10px}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/functional/funcional_filtro_passo_01_cli.png}
+    \caption{Resultado da Primeira Iteração da Verifição Funcional - Filtro}
+\end{figure}
+\vspace{5px}
+
+A falha durante a prova do invariante \emph{average\_inv} se dá pois, após a escrita no endereço de memória \emph{filtered\_data[i]}, os \emph{solvers} não conseguem 
+garantir que os elementos de \emph{raw\_data} sejam os mesmo \cite{KsassPeuk2025_framaC_WP_moving_average}, problema chamado de \emph{Memory Separation Problem} - ou problema de separação
+de memória - o qual acontece mesmo especificando que são espaços de memória distintos no contrato da função (pelo uso de \emph{separated}), sendo necessário então
+a especificação de propriedades auxiliares, que foi feita através de \emph{ghost code}. 
+
+Já a falha durante a prova do invariante \emph{upper\_bound\_inv} se dá pois os \emph{solvers} necessitam de 
+um passo intermediário para provar tal propriedade, sendo possivel de ser sanado utilizando também \emph{ghost code}.
+
+\newpage
+\begin{lstlisting}[style=cstyle, caption={Ghost Code e Asserts Auxiliares - Média Móvel}, label={lst:ghost_code_filter}]
+/*@ ghost
+    /@ requires \forall integer i ; 0 <= i < len ==> 0 <= array[i] <= MAX_VOLTAGE ;
+        assigns \nothing ;
+        ensures 0.0f <= f_sum(array, len) <= (float)(len * MAX_VOLTAGE); @/
+    void f_lemma_bound_sum(float* array, unsigned len){
+        /@ loop invariant termination_inv: 0 <= i <= len ;
+        loop invariant upper_bound_inv: 0.0f <= f_sum(array, i) <= (float)(i * MAX_VOLTAGE);
+        loop assigns i ;
+        loop variant len - i ; @/
+        for(unsigned i = 0 ; i < len ; i++);
+    }*/
+
+/*@ ... */
+void f_moving_average_filter(...){
+    /*@ ... */
+    for (unsigned int i = 0; i < filtered_data_length; i++) {
+        //@ ghost top_entry: ;
+        //@ ghost f_lemma_bound_sum(raw_data+i, window_size);
+        filtered_data[i] = f_sum(raw_data+i, window_size)/window_size;
+        /*@ assert
+            \forall integer k, x ;
+                0 <= k < i ==>
+                0 <= x < window_size ==>
+                    \at((raw_data+k)[x], top_entry) == (raw_data+k)[x]; */
+        /*@ ghost
+            /@ loop invariant 0 <= k <= i+1 ;
+               loop invariant
+                   \forall integer j ; 0 <= j < k ==>
+                       f_sum(raw_data+j, window_size) ==
+                       f_sum{top_entry}(raw_data+j, window_size) ;
+               loop assigns k ;
+               loop variant (i + 1) - k ; @/
+            for(unsigned k = 0 ; k <= i ; k++){
+                /@ loop invariant 0 <= e <= window_size ;
+                   loop invariant f_sum(raw_data+k, e) == f_sum{top_entry}(raw_data+k, e);
+                   loop assigns e;
+                   loop variant window_size - e; @/
+                for(unsigned e = 0 ; e < window_size ; e++);
+            } */
+        /*@ assert
+            \forall integer k ;
+                0 <= k <= i ==>
+                    f_sum(raw_data+k, window_size) ==
+                    f_sum{LoopCurrent}(raw_data+k, window_size); */
+    }
+}
+\end{lstlisting}
+\vspace{5px}
+
+Com a utilização de \emph{ghost code} e de \emph{assert} que levem a análise de cada elemento individual das \emph{array} envolvidas, 
+é possível garantir que os \emph{solvers} identifiquem que não há alteração dos elementos de \emph{raw\_data} entre antes da alteração do elemento \emph{filtered\_data[i]} e depois,
+representando a ausência de efeito colateral da operação e resultando na verificação de 100\% dos objetivos.
+\vspace{10px}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.5\textwidth]{img/functional/successful_verification_filter.png}
+    \caption{Resultado da Verificação Funcional - Filtro}
+\end{figure}
 
 \newpage
 \printbibliography[title={Referências}]
