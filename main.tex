@@ -1244,8 +1244,8 @@ as invariantes de loop da função \emph{f\_moving\_average\_filter} e, por cons
 \vspace{5px}
 
 A falha durante a prova do invariante \emph{average\_inv} se dá pois, após a escrita no endereço de memória \emph{filtered\_data[i]}, os \emph{solvers} não conseguem 
-garantir que os elementos de \emph{raw\_data} sejam os mesmo \cite{KsassPeuk2025_framaC_WP_moving_average}, problema chamado de \emph{Memory Separation Problem} - ou problema de separação
-de memória - o qual acontece mesmo especificando que são espaços de memória distintos no contrato da função (pelo uso de \emph{separated}), sendo necessário então
+garantir que os elementos de \emph{raw\_data} sejam os mesmo \cite{KsassPeuk2025_framaC_WP_moving_average}, problema chamado de \emph{Memory Separation Problem} (ou problema de separação
+de memória) o qual acontece mesmo especificando que são espaços de memória distintos no contrato da função (pelo uso de \emph{separated}), sendo necessário então
 a especificação de propriedades auxiliares, que foi feita através de \emph{ghost code}. 
 
 Já a falha durante a prova do invariante \emph{upper\_bound\_inv} se dá pois os \emph{solvers} necessitam de 
@@ -1312,6 +1312,15 @@ representando a ausência de efeito colateral da operação e resultando na veri
     \caption{Resultado da Verificação Funcional - Filtro}
 \end{figure}
 
+\newpage
+\section{Conclusão}
+O avanço contínuo da tecnologia digital ao longo das últimas décadas consolidou o software como parte essencial de praticamente todos os sistemas modernos. Da automação industrial aos dispositivos
+médicos, da aviação ao setor financeiro, observa-se uma expansão constante tanto na complexidade desses sistemas quanto no conjunto de responsabilidades atribuídas ao software. Soluções antes baseadas
+em mecanismos eletromecânicos foram, ao longo do tempo, substituídas por sistemas digitais controlados por programas, o que trouxe ganhos importantes em eficiência, flexibilidade e capacidade
+funcional. Ao mesmo tempo, porém, essa transição aumentou a dependência da sociedade do funcionamento correto e previsível desses softwares.
+
+Este trabalho apresentou em dois diferentes cenários uma metodologia que vem ganhando cada vez mais notoriedade, principalmente no setor aeronáutico,
+que visa garantir a ausência de erros em tempo de execução e a corretude funcional dos programas, uitilizando ferramentas open-source: A Verificação Formal.
 \newpage
 \printbibliography[title={Referências}]
 
