@@ -1322,15 +1322,15 @@ funcional. Ao mesmo tempo, porém, essa transição aumentou a dependência da s
 Este trabalho apresentou em dois diferentes cenários uma metodologia que vem ganhando cada vez mais notoriedade, principalmente no setor aeronáutico,
 que visa garantir a ausência de erros em tempo de execução e a corretude funcional dos programas, uitilizando ferramentas open-source: A Verificação Formal.
 
-No primeiro cenário foi possível verificar a ausência de erros em tempo de execução e a corretude funcional através do \emph{Frama-C} e seus plugins \emph{WP} e \emph{RTE} da implementação de um
+No primeiro cenário foi possível verificar a ausência de erros em tempo de execução e a corretude funcional através do \emph{Frama-C}, e seus plugins \emph{WP} e \emph{RTE}, da implementação de um
 Controlador PID.
-A verificação, mesmo tendo êxito, levantou algumas peculiaridades dos diferentes comportamentos a partir dos diferentes modelos tanto de memória quanto aritméticos utilizados e do estado atual das ferramentas utilizadas que resultaram em um trabalho considerável para garantir que \emph{solvers} automáticos
+A verificação, mesmo tendo êxito, levantou algumas peculiaridades do comportamento do sistema a depender dos diferentes modelos tanto de memória quanto aritméticos escolhidos e do estado atual das ferramentas utilizadas que resultaram em um trabalho considerável para garantir que \emph{solvers} automáticos
 fossem capazes de analisar corretamente o código fonte sem a necessidade de provas manuais. Tal trabalho está diretamente ligado as 
 peculiaridades da forma como pontos flutuantes e seu arredondamento são representados tanto na linguagem C quanto em processadores modernos. 
 
-Já no segundo cenário, no qual foi utilizando os plugins \emph{EVA} e \emph{WP} para a análise de erros em tempo de execução e a corretude funcional, respectivamente, de um filtro de média móvel.
+Já no segundo cenário foram utilizando os plugins \emph{EVA} e \emph{WP} para a análise de erros em tempo de execução e a corretude funcional, respectivamente, de um filtro de média móvel.
 De forma análoga, a verificação a pesar de bem sucedidade apontou dificuladedes das ferramentas de analisar implementações que utilizam extensivamente 
-\emph{arrays}, e todas as implementações auxiliares necessárias para tal - resultando um total de 72 linhas de \emph{ACSL} e somente 15 para a implementação propriamente dita.
+\emph{arrays}, resultando na necessidade de notações e contratos auxiliares - resultando em um total de 72 linhas de \emph{ACSL} e somente 15 para a implementação em \emph{C} propriamente dita.
 
 \newpage
 \printbibliography[title={Referências}]
