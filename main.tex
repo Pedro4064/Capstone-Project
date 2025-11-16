@@ -430,22 +430,13 @@ Por fim, outro exemplo expressivo do uso de verificação dedutiva com o \emph{p
 implementação compacta da biblioteca padrão C — abrangendo funções de \texttt{string.h} e \texttt{stdio.h}. Apesar do código não ter sido originalmente projetado para verificação formal, eles
 conseguiram verificar completamente 14 das 34 funções de \texttt{string.h} e 13 das 23 funções de \texttt{stdio.h}, demonstrando que mesmo código de baixo nível pode ser submetido com sucesso à
 verificação dedutiva desde que contratos ACSL adequados sejam elaborados. Para isso, os autores recorreram a especificações detalhadas envolvendo invariantes sobre ponteiros, relações entre tamanhos
-de buffers, validade de regiões de memória e comportamento esperado de iterações. Ao longo do processo, diversas limitações práticas foram identificadas: certas estruturas da biblioteca eram
+de buffers, validade de regiões de memória e comportamento esperado de iterações. Ao longo do processo, entretanto, diversas limitações práticas foram identificadas: certas estruturas da biblioteca eram
 excessivamente dependentes de \emph{casts} inseguros, dificultando a modelagem no WP; funções com alto grau de aliasing exigiam invariantes complexos para evitar ambiguidades no modelo de memória; e
 alguns padrões idiomáticos de C — como manipulação direta de ponteiros em laços decrecentes ou uso de macros expansivas — levavam o provador a gerar obrigações de prova que os \emph{solvers} não
 conseguiam resolver. Além disso, funções dependentes de chamadas ao sistema, especialmente aquelas relacionadas a operações de arquivo, só puderam ser parcialmente verificadas devido à falta de
 especificações para componentes externos, um desafio semelhante ao enfrentado por Silva et al. \cite{silva2016formal} em seu estudo envolvendo RTOS. Ainda assim, os resultados mostram que, com
 contratos bem construídos e modelagem cuidadosa, é possível obter garantias formais significativas mesmo para bibliotecas amplamente utilizadas, mas repletas de detalhes de implementação e manipulação
 intensiva de ponteiros.
-
-Observa-se, portanto, que WP/Jessie, RTE e EVA são complementares: provas dedutivas permitem demonstrar propriedades lógicas profundas e rigorosas, enquanto análises automáticas baseadas em
-interpretação abstrata oferecem escalabilidade e detecção eficaz de potenciais \emph{runtime errors}. Essa complementaridade já é discutida em estudos mais amplos
-\cite{cofer2012,rushby2011,delmas2012}, que defendem fluxos híbridos de verificação. No contexto industrial, essa integração tem se tornado cada vez mais alinhada com práticas exigidas por organismos
-certificadores e com o avanço de iniciativas educacionais e metodológicas como as apresentadas por Blanchard \cite{blanchard2020introduction} e Kosmatov et al. \cite{kosmatov2024guide}. O conjunto dos
-trabalhos revisados evidencia que, embora o uso de métodos formais exija esforço técnico significativo, sua aplicação prática tem produzido resultados consistentes e alinhados às exigências de
-sistemas embarcados críticos.
-
-
 
    
 \clearpage
