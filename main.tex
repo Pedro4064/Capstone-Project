@@ -144,14 +144,13 @@
 % Date
 \vfill{}
 \begin{center}
-    Campinas, 23 de Fevereiro de 2025.
+    Campinas, 06 de Dezembro de 2025.
 \end{center}
 
 \newpage
 \tableofcontents
 \newpage
 \section{Introdução}
-    \subsection{Motivação}
     Na sociedade atual, a tecnologia está profundamente integrada no cotidiano das pessoas e tornou-se essencial para o funcionamento de diversos setores, incluindo: Saúde, Comunicação, Transporte e Segurança. 
     Em muitos casos, o desempenho correto das funções atribuídas a esses sistemas tecnológicos é crucial, pois sua falha tem repercussões catastróficas, como a perda de vidas, desastre ambientais e prejuízos econômicos. Sistemas com tais responsabilidades são  categorizados como \emph{Safety-Critical}. 
 
@@ -176,7 +175,12 @@
     \end{itemize}
 
     \subsection{Estrutura do Trabalho}
-        Este trabalho é organizado da seguinte forma:  Na seção \ref{chap:revisao_teorica} é apresentada uma breve revisão da teoria de métodos formais (fundamento da verificação formal) e alguns conceitos importantes para a área de engenharia de software, provendo assim uma base para o entendimento dos métodos e resultados encontrados; Na seção \ref{chap:projetos_correlatos} são apresentados projetos correlatos, a fim de demonstrar a utilização da verificação formal em diferentes contextos, além das atuais limitações e desafios da sua implementação; A seção \ref{chap:metodologia} abrange as etapas necessárias para a verificação formal, explorando a certificação da corretude funcional e ausência de erros em tempo de execução; A seção \ref{chap:resultados}, por fim, apresenta os resultados das verificações feitas, assim como os desafios e métodos alternativos utilizados para supera-los.
+        Este trabalho é organizado da seguinte forma:  na Seção \ref{chap:revisao_teorica} é apresentada uma breve revisão da teoria de métodos formais (fundamento da verificação formal) e alguns
+        conceitos importantes para a área de engenharia de software, provendo assim uma base para o entendimento dos métodos e resultados encontrados; na Seção \ref{chap:projetos_correlatos} são
+        apresentados projetos correlatos, a fim de demonstrar a utilização da verificação formal em diferentes contextos, além das atuais limitações e desafios da sua implementação; a Seção
+        \ref{chap:metodologia} abrange as etapas necessárias para a verificação formal, explorando a certificação da corretude funcional e ausência de erros em tempo de execução; a Seção
+        \ref{chap:resultados}, por fim, apresenta os resultados das verificações feitas, assim como os desafios e métodos alternativos utilizados para supera-los.
+
 
 
 \clearpage
@@ -323,7 +327,7 @@ Como resultado, tem-se que garantindo a pré-condição \ref{eq:pre_condi_exempl
 
 \clearpage
 \subsection{Controlador PID}
-O controlador PID (\emph{Proporcional-Integral-Derivativo}) é um dos métodos de controle em malha fechada mais amplamente 
+O controlador PID (\emph{Proporcional-Integral-Derivativo}) é um dos métodos de controle em malha fechada mais 
 utilizados na engenharia de controle. Sua popularidade se deve à relativa simplicidade de implementação, aliada à sua capacidade de
 fornecer bom desempenho em uma ampla gama de processos \cite{aastrom1995pid}.
 
@@ -338,7 +342,7 @@ fornecer bom desempenho em uma ampla gama de processos \cite{aastrom1995pid}.
 
 
 A estrutura de um controlador PID baseia-se no cálculo de uma variável de controle — chamada de 
-\emph{esforço de controle} — a partir do erro entre o valor de referência (ou valor desejado) e o valor medido do sistema (fechando, assim, a malha, como podemos ver pela figura \ref{fig:pid_loop}). 
+\emph{esforço de controle} — a partir do erro entre o valor de referência (ou valor desejado) e o valor medido do sistema (fechando, assim, a malha, como podemos ver pela Figura \ref{fig:pid_loop}). 
 Esse esforço é composto por três termos: proporcional, integral e derivativo, que, combinados, ajustam a resposta do sistema de forma dinâmica \cite{ogata2010modern}.
 
 O termo proporcional atua diretamente sobre o erro instantâneo, aplicando uma correção proporcional à sua magnitude. 
@@ -383,10 +387,10 @@ filtro calcula a média aritmética de um número fixo de amostras recentes, sua
     y[n] = \frac{1}{N}\sum_{k=0}^{N-1}x[n-k],
 \end{align}
 
-onde $y[n]$ é a saída filtrada, $x[n]$ é a entrada, e $N$ é o tamanho da janela de amostragem.
+Onde $y[n]$ é a saída filtrada, $x[n]$ é a entrada, e $N$ é o tamanho da janela de amostragem.
 Embora o filtro de média móvel apresente desempenho limitado na rejeição seletiva de frequências, sua implementação simples — exigindo apenas operações de soma e divisão — e sua estabilidade o tornam
 uma escolha recorrente em sistemas embarcados com restrições de processamento e memória \cite{lyons2011understanding}, servindo como uma solução prática para suavização de leituras de sensores antes da aplicação de algoritmos de
-controle, como o PID .
+controle, como o PID.
 
 \clearpage
 \section{Trabalhos Correlatos}\label{chap:projetos_correlatos}
@@ -456,7 +460,7 @@ Frama-C (\emph{Framework for Modular Analysis of C Code}) é uma plataforma modu
 \end{figure}
 \vspace{5px}
 
-É possível utilizar a ferramenta em seu modo com interface gráfica (\emph{frama-c-gui}), como demonstrado pela figura \ref{fig:frama_c_gui}, onde o usuário é capaz de ver (mas não é capaz de editar) os códigos fontes em análise, assim como verificar os status das análises dos diferentes \emph{plugins}. 
+É possível utilizar a ferramenta em seu modo com interface gráfica (\emph{frama-c-gui}), como demonstrado pela Figura \ref{fig:frama_c_gui}, onde o usuário é capaz de ver (mas não é capaz de editar) os códigos fontes em análise, assim como verificar os status das análises dos diferentes \emph{plugins}. 
 
 \vspace{10px}
 \begin{figure}[h]
@@ -466,7 +470,7 @@ Frama-C (\emph{Framework for Modular Analysis of C Code}) é uma plataforma modu
     \label{fig:frama_c_gui}
 \end{figure}
 
-Uma outra alternativa é a utilização da versão de terminal (chamada de \emph{cli}) da ferramenta Frama-C, como mostrada na figura \ref{fig:frama_c_cli}, onde todos os status são expostos diretamente no terminal. 
+Uma outra alternativa é a utilização da versão de terminal (chamada de \emph{cli}) da ferramenta Frama-C, como mostrada na Figura \ref{fig:frama_c_cli}, onde todos os status são expostos diretamente no terminal. 
 
 \vspace{10px}
 \begin{figure}[h]
@@ -672,8 +676,8 @@ A partir dessa configuração, é então possível verificar com a interface gr�
 \subsubsection{Verificação de Erros em Tempo de Execução}
 O processo de verificação de erros em tempo de execução é um processo iterativo, pois originalmente não há nenhuma anotação \emph{ACSL} que limite os valores 
 envolvidos em operações aritmética, portanto a maioria operações aritméticas envolvendo  inteiros são marcadas como possíveis 
-\emph{overflow/underflow} e aquelas envolvendo variáveis de ponto flutuante são marcadas como possíveis \emph{nan}(not a number)/infinitos, 
-já as operações de acesso a ponteiros são marcadas como possiveis de acessos a \emph{null}, como podemos ver pela imagem \ref{fig:rte_pid_1}.
+\emph{overflow/underflow} e aquelas envolvendo variáveis de ponto flutuante são marcadas como possíveis \emph{nan} (\emph{not a number})/infinitos, 
+já as operações de acesso a ponteiros são marcadas como possiveis de acessos a \emph{null}, como podemos ver pela Imagem \ref{fig:rte_pid_1}.
 
 \vspace{10px}
 \begin{figure}[h!]
@@ -715,7 +719,7 @@ Nesta seção serão apresentados os resultados das etapas de verificação dos 
 e especificações utilizadas.
 \subsection{Controlador PID}
 O  código fonte que implementa um controlador PID, no contexto de um sistema embarcado controlando um sinal de tensão 
-analógico com amplitude de $0mV$ a $+3.300mV$, aquisitado por um conversor digital analógico (ADC), e tendo como atuador um conversor digital analógico (DAC) de amplitude $0mV$ a $3.300mV$ é representado abaixo:
+analógico com amplitude de $0\ mV$ a $+3300\ mV$, aquisitado por um conversor digital analógico (ADC), e tendo como atuador um conversor digital analógico (DAC) de amplitude $0\ mV$ a $3300\ mV$ é representado abaixo:
 
 \vspace{10px}
 \begin{lstlisting}[style=cStyle, caption={Implementação - Controlador PID com Clamping e Saturação.}]
@@ -838,14 +842,14 @@ void pid_compute_actuator_command(pid_controller* pid_con){...}
 
 Com a razão por trás dessas faixas sendo:
 \begin{itemize}
-    \item Tempo de amostragem $T_s$ comumente usado em sistemas embarcados - $10ms$ a $1s$.
-    \item A faixa do atuador é a de um DAC comumente encontrado em sistemas embacarados - $0mV$ a $3.300mV$.
-    \item A faixa do valor de entrada é a de um ADC comumente encontrado em sistemas embacarados - $0mV$ a $3.300mV$.
+    \item Tempo de amostragem $T_s$ comumente usado em sistemas embarcados - $10\ ms$ a $1\ s$.
+    \item A faixa do atuador é a de um DAC comumente encontrado em sistemas embacarados - $0\ mV$ a $3300\ mV$.
+    \item A faixa do valor de entrada é a de um ADC comumente encontrado em sistemas embacarados - $0\ mV$ a $3300\ mV$.
     \item A faixa dos limites superiores e inferiores do interador é partindo do calculo do pior cenário, esse sendo os maiores erros (em módulo) por 20 segundos, com o menor $T_s$.
 \end{itemize}
 
 Essas pré-condições são suficientes para a função \emph{pid\_integral\_error}, mas não para a função principal 
-responsável por calcular o esforço do controlador - \emph{pid\_compute\_actuator\_command} - como podemos ver pela figura
+responsável por calcular o esforço do controlador - \emph{pid\_compute\_actuator\_command} - como podemos ver pela Figura
 \ref{fig:rte_pid_2}.
 \vspace{10px}
 \begin{figure}[h!]
@@ -1120,7 +1124,7 @@ referente à falta da implementação ou de uma especificação para a função 
 
 Analogamente a como foi feito para o controlador PID, o primeiro passo a ser feito é estabelecer as faixas de possíveis valores para as variáveis. 
 Neste caso específico, a forma mais simples é criar um contrato para a função \emph{rtos\_sample\_adc} especificando que 
-o ADC do micro-controlador sempre retorna valores entre $0mV$ e $3300mV$ e finitos, sanando assim, também, a questão de não 
+o ADC do micro-controlador sempre retorna valores entre $0\ mV$ e $3300\ mV$ e finitos, sanando assim, também, a questão de não 
 se ter a implementação dessa função da HAL.
 
 Algo, entretanto, que é necessário devido a uma limitação do EVA - como observado por Virgile em \cite{Virgile2025_framaC_EVA} - é de 
@@ -1128,7 +1132,7 @@ ter uma definição substituta e simplificada para a função \emph{rtos\_burst\
 \emph{plugin} analise todos os elementos da \emph{array}, tendo em vista a dificuldade do sistema de quantificar elementos em memória apartir somente de 
 calusulas de \emph{ensures}.
 
-Resultando, então, nas definições estabelecidas na figura abaixo e obtendo nenhum erro em tempo de execução, como visto pela figura \ref{fig:success_rte_filtro}.
+Resultando, então, nas definições estabelecidas na figura abaixo e obtendo nenhum erro em tempo de execução, como visto pela Figura \ref{fig:success_rte_filtro}.
 \begin{lstlisting}[style=cStyle, caption={Faixa de Valores e Contratos Limitadores - Média Móvel.}, label={lst:utilizacao_filtro}]
 /*@ requires \valid(dest); assigns *dest \from \nothing;
     ensures \is_finite(*dest) && 0.0f <= *dest <= 3300.0f;*/
