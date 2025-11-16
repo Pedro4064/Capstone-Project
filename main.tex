@@ -390,62 +390,60 @@ controle, como o PID .
 
 \clearpage
 \section{Trabalhos Correlatos}\label{chap:projetos_correlatos}
-   Nesta seção, são revisados trabalhos que empregam métodos de verificação formal — tanto dedutivos quanto baseados em interpretação abstrata — utilizando a plataforma Frama-C e seus \emph{plugins}: WP, RTE e EVA.
-
-Em um primeiro momento, são apresentados trabalhos focados na corretude funcional de software, isto é, na prova formal de que uma implementação está em conformidade com sua especificação. Em seguida, são discutidos trabalhos voltados à verificação da ausência de erros em tempo de execução, domínio no qual a interpretação abstrata e ferramentas como o EVA têm se mostrado particularmente eficazes.
-
-\subsection{Corretude Funcional}
-
-A verificação de corretude funcional tem ganhado destaque especialmente em setores de alta criticidade, como o aeronáutico, automotivo e espacial, impulsionada tanto pela maturidade dos métodos
-formais quanto pelo surgimento de ferramentas acessíveis como Frama-C. O \emph{plugin} WP, baseado em métodos dedutivos e na teoria da pré-condição mais fraca
-\cite{hoare1969axiomatic,dijkstra1970ewd249}, constitui atualmente uma das principais abordagens open-source para prova de programas C de forma modular e orientada por contratos ACSL
-\cite{framaCacsl}.
-
-Um dos trabalhos mais influentes que utilizam o WP para provar a corretude funcional de rotinas aeronáuticas é a verificação da biblioteca matemática do piloto automático Paparazzi, conduzida por
-Perrone et al. \cite{perrone2016verifying}. Nesse estudo, duas funções de navegação — \emph{float\_rmat\_of\_quat} e \emph{float\_quat\_of\_rmat} — foram formalmente especificadas e
-analisadas. Enquanto a primeira pôde ser completamente provada com \emph{solvers} automáticos, a segunda exigiu provas interativas, ilustrando um ponto recorrente na literatura: a necessidade de
-conhecimento especializado quando a verificação automática não é suficiente, conforme também discutido por Yaglamunov em sua investigação sobre provas formais de funções da biblioteca padrão
-\cite{yaglamunov2021correctness}.
-
-Outro exemplo relevante é o caso de verificação formal apresentado por Silva et al. \cite{silva2016formal}, onde aplicou o método de verificação dedutiva ao software de um subsistema espacial utilizando o
-\emph{plugin} Jessie, o antecessor do WP no ecossistema Frama-C. O estudo avaliou funções que realizavam tanto operações inteiras quanto de ponto flutuante. Os autores relatam que, para operações
-inteiras, a verificação foi majoritariamente bem-sucedida, com praticamente todas as obrigações de prova sendo resolvidas automaticamente pelos \emph{solvers}. Em contraste, funções envolvendo
-aritmética em ponto flutuante — como normalização e manipulação vetorial — apresentaram dificuldades significativas: diversas propriedades não puderam ser provadas de forma automática e no caso do
-trabalho em questão a utilização de \emph{proof-assistants} (no qual é possível inserir provas de forma manual e colaborativa) não era uma opção viável considerando o esforço necessário de alteração
-da estrutura do código, evidenciando as limitações conhecidas da verificação dedutiva sobre \emph{floating-point}. Além disso,
-por depender de funções externas do sistema operacional de tempo real (RTOS), o estudo recorreu à criação especificações em ACSL e implementação da definição da função (tipo de retorno, nome e argumentos) para modelar apenas os comportamentos relevantes dessas chamadas. Essa abstração permitiu a
-continuidade da verificação, mas também reforçou o cuidado necessário para garantir que tais modelos não introduzissem inconsistências. Assim, o trabalho demonstra tanto o potencial quanto os desafios
-práticos da verificação dedutiva com Jessie/WP, especialmente diante de aritmética de ponto flutuante e dependências externas.
-
-Do ponto de vista conceitual, a consolidação da plataforma Frama-C e o avanço educacional em torno de WP foram impulsionados por obras como o tutorial de Blanchard \cite{blanchard2020introduction} e o
-guia de Kosmatov et al. \cite{kosmatov2024guide}, que fornecem bases metodológicas e aplicações práticas para engenheiros e pesquisadores. Esses materiais se tornaram fundamentais para a disseminação
-da técnica, especialmente em projetos acadêmicos de verificação orientada a contratos.
-
-\subsection{Ausência de Erros em Tempo de Execução}
-
-A análise de ausência de erros em tempo de execução (RTE) é um dos pilares da conformidade com normas de software crítico, uma vez que falhas como \emph{overflows}, desvios inválidos, violações de
-memória e acessos fora dos limites estão entre as principais causas de incidentes históricos, incluindo falhas catastróficas como o caso do Ariane 5 \cite{ariane_5_report}. No contexto do Frama-C,
-essa categoria de verificação é tradicionalmente associada ao \emph{plugin} RTE, que gera automaticamente anotações ACSL capazes de identificar potenciais erros, e ao \emph{plugin} EVA, baseado em
-interpretação abstrata.
-
-O uso do RTE é ilustrado por Pollien no mesmo estudo sobre a biblioteca Paparazzi \cite{perrone2016verifying}: ali, o autor observa que o RTE é capaz de detectar operações aritméticas potencialmente
-inseguras quando os contratos formais não impõem restrições suficientes, porém apresenta limitações para expressões envolvendo estruturas complexas, sobretudo quando efeitos colaterais estão
-presentes. Esse comportamento também é relatado por Todorov em sua tese no contexto automotivo \cite{todorov2020automotive}, onde o uso de tipos compostos e arquiteturas orientadas a modelos gerou
-cenários que o RTE não conseguiu analisar adequadamente.
-
-Como alternativa mais robusta, o EVA emerge como uma solução baseada em interpretação abstrata capaz de explorar conjuntos de valores possíveis para variáveis e estados de execução
-\cite{framaC_eva_manual}. Diferentemente do WP, que depende de especificações completas, o EVA opera de forma mais automatizada e é adequado para análise de grandes bases de código, tornando-se
-comparável a ferramentas industriais como Astrée \cite{kaestner2010astree}, tradicionalmente utilizada para garantir ausência de erros em software aeronáutico certificado.
+Nesta seção, são revisados trabalhos que empregam métodos de verificação formal — tanto dedutivos quanto baseados em interpretação abstrata — utilizando a plataforma Frama-C e seus \emph{plugins} WP,
+RTE e EVA. 
 
 
-Estudos recentes, como a análise conduzida por Virgile em \cite{Virgile2025_framaC_EVA}, demonstram tanto a eficácia quanto os limites do EVA na propagação de intervalos e no tratamento de contratos
-ACSL. Esses casos práticos reforçam a necessidade de uma escrita precisa de especificações para que a análise abstrata possa reduzir imprecisões (\emph{false alarms}) sem comprometer a completude da
-verificação.
+A verificação dedutiva tem recebido destaque em aplicações aeronáuticas, automotivas e espaciais, impulsionada pela maturidade de ferramentas como o Frama-C e o uso da teoria de pré-condição mais
+fraca \cite{hoare1969axiomatic,dijkstra1970ewd249}, que fundamenta a abordagem do \emph{plugin} WP e do seu antecessor Jessie.
+
+Enquanto métodos dedutivos se concentram na prova de conformidade funcional, a literatura também aponta a relevância de análises automáticas para detecção de erros em tempo de execução. O
+\emph{plugin} RTE pode inserir anotações ACSL automaticamente e detectar erros potenciais como \emph{overflows}, acessos inválidos ou divisões por zero. Um outro \emph{plugin} também utilizado para análise, dentre outras coisas, de RTE é o EVA,
+baseado em interpretação abstrata \cite{framaC_eva_manual} e capaz de inferir, além de acessos a ponteiros nulos, conjuntos de valores
+possíveis para variáveis e estados de execução, fornecendo garantias mais robustas para fluxos de controle complexos e bases de código maiores.
 
 
-Por fim, vale ressaltar que o cruzamento entre WP, RTE e EVA é parte de uma tendência já observada em estudos mais amplos sobre verificação formal, que defendem a complementaridade entre métodos de
-prova e análise automática \cite{cofer2012,rushby2011,delmas2012}. A integração dessas abordagens, especialmente em fluxos de desenvolvimento exigidos por DO-178C/DO-333, forma hoje a base das
-práticas modernas de verificação em software crítico.
+Um exemplo representativo é a verificação da biblioteca
+matemática do piloto automático Paparazzi por Perrone et al. \cite{perrone2016verifying}, que concentra-se em funções de conversão entre diferentes representações de atitude (matriz de rotação,
+quaternions e ângulos de Euler) nas versões \texttt{float}, \texttt{double} e \texttt{int}. Nesse estudo, WP, RTE e EVA são combinados: inicialmente, contratos ACSL são adicionados para garantir
+validade de ponteiros, domínio de variáveis e ausência de erros em tempo de execução, e o EVA é utilizado para inferir intervalos de valores e lidar com aliasing em estruturas e ponteiros, cujos
+resultados são então reutilizados pelo WP para descarregar obrigações de prova mais difíceis. 
+
+Na parte de corretude funcional, os autores definem em ACSL funções lógicas e lemas para capturar o
+significado matemático das conversões (por exemplo, a função lógica que converte um quaternion unitário em matriz de rotação) além de diferentes propriedades de matrizes, que servem para especificar que a implementação em C deve ser equivalente a essa
+especificação “ideal”, adotando o modelo aritmético real do WP. Para a função \emph{float\_rmat\_of\_quat}, responsável por transformar uma matriz unitária quaternion em uma matriz de rotação, essa abordagem permitiu provar automaticamente que 
+tanto a matriz de entrada quanto a de saída representam a mesma rotação e são equivalentes após pequenos ajustes no código para reduzir efeitos de arredondamento. Já para a função inversa \emph{float\_quat\_of\_rmat}
+e para conversões envolvendo ângulos de Euler, a prova automática foi insuficiente, sendo necessário o uso do modo interativo do WP com Coq para demonstrar lemas algébricos (por exemplo, envolvendo
+identidades trigonométricas e propriedades de quaternions). Assim, o estudo evidencia um fluxo de trabalho em que análise de ausência de erros em tempo de execução (RTE/EVA) e verificação dedutiva
+(WP) são integradas de forma pragmática, mostrando na prática tanto o potencial quanto as limitações dos \emph{plugins} da plataforma Frama-C em um sistema de controle de voo real.
+
+
+Outro estudo relevante é apresentado por Silva et al. \cite{silva2016formal}, que aplicaram verificação dedutiva ao software de um subsistema espacial utilizando o \emph{plugin} Jessie. O trabalho
+analisou funções que realizavam tanto operações inteiras quanto de ponto flutuante. Os autores relatam sucesso quase total nas provas referentes a operações inteiras, cuja estrutura permitiu que os
+\emph{solvers} descarregassem automaticamente a maioria das obrigações de prova. Já para funções envolvendo aritmética em ponto flutuante — como normalização e manipulação vetorial — a verificação
+mostrou-se substancialmente mais difícil. Em vários casos, as propriedades desejadas não puderam ser provadas automaticamente, e, no contexto do estudo, a prova interativa não era viável devido ao
+esforço requerido para reestruturar o código e adaptar o processo de verificação. O artigo também destaca a necessidade de lidar com dependências externas do RTOS, que foram abstraídas por meio de
+contratos ACSL e definição explícita de assinaturas de função, permitindo ao Jessie raciocinar sobre os efeitos relevantes dessas chamadas sem acessar suas implementações reais. Essa modelagem, embora
+necessária, também introduz riscos caso a abstração não reflita adequadamente o comportamento real, evidenciando um trade-off comum na verificação de sistemas embarcados críticos.
+
+Por fim, outro exemplo expressivo do uso de verificação dedutiva com o \emph{plugin} WP e RTE é o trabalho de Carvalho et al. \cite{carvalho2014klibc}, no qual os autores analisaram partes da kLIBC — uma
+implementação compacta da biblioteca padrão C — abrangendo funções de \texttt{string.h} e \texttt{stdio.h}. Apesar do código não ter sido originalmente projetado para verificação formal, eles
+conseguiram verificar completamente 14 das 34 funções de \texttt{string.h} e 13 das 23 funções de \texttt{stdio.h}, demonstrando que mesmo código de baixo nível pode ser submetido com sucesso à
+verificação dedutiva desde que contratos ACSL adequados sejam elaborados. Para isso, os autores recorreram a especificações detalhadas envolvendo invariantes sobre ponteiros, relações entre tamanhos
+de buffers, validade de regiões de memória e comportamento esperado de iterações. Ao longo do processo, diversas limitações práticas foram identificadas: certas estruturas da biblioteca eram
+excessivamente dependentes de \emph{casts} inseguros, dificultando a modelagem no WP; funções com alto grau de aliasing exigiam invariantes complexos para evitar ambiguidades no modelo de memória; e
+alguns padrões idiomáticos de C — como manipulação direta de ponteiros em laços decrecentes ou uso de macros expansivas — levavam o provador a gerar obrigações de prova que os \emph{solvers} não
+conseguiam resolver. Além disso, funções dependentes de chamadas ao sistema, especialmente aquelas relacionadas a operações de arquivo, só puderam ser parcialmente verificadas devido à falta de
+especificações para componentes externos, um desafio semelhante ao enfrentado por Silva et al. \cite{silva2016formal} em seu estudo envolvendo RTOS. Ainda assim, os resultados mostram que, com
+contratos bem construídos e modelagem cuidadosa, é possível obter garantias formais significativas mesmo para bibliotecas amplamente utilizadas, mas repletas de detalhes de implementação e manipulação
+intensiva de ponteiros.
+
+Observa-se, portanto, que WP/Jessie, RTE e EVA são complementares: provas dedutivas permitem demonstrar propriedades lógicas profundas e rigorosas, enquanto análises automáticas baseadas em
+interpretação abstrata oferecem escalabilidade e detecção eficaz de potenciais \emph{runtime errors}. Essa complementaridade já é discutida em estudos mais amplos
+\cite{cofer2012,rushby2011,delmas2012}, que defendem fluxos híbridos de verificação. No contexto industrial, essa integração tem se tornado cada vez mais alinhada com práticas exigidas por organismos
+certificadores e com o avanço de iniciativas educacionais e metodológicas como as apresentadas por Blanchard \cite{blanchard2020introduction} e Kosmatov et al. \cite{kosmatov2024guide}. O conjunto dos
+trabalhos revisados evidencia que, embora o uso de métodos formais exija esforço técnico significativo, sua aplicação prática tem produzido resultados consistentes e alinhados às exigências de
+sistemas embarcados críticos.
 
 
 
