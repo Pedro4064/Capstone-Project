@@ -1332,6 +1332,13 @@ Já no segundo cenário foram utilizando os plugins \emph{EVA} e \emph{WP} para 
 De forma análoga, a verificação a pesar de bem sucedidade apontou dificuladedes das ferramentas de analisar implementações que utilizam extensivamente 
 \emph{arrays}, resultando na necessidade de notações e contratos auxiliares - resultando em um total de 72 linhas de \emph{ACSL} e somente 15 para a implementação em \emph{C} propriamente dita.
 
+Em síntese, os dois cenários analisados demonstram que a verificação formal, embora ainda exija esforço significativo na modelagem, especificação e adaptação do código às ferramentas, já é 
+viável utilizando soluções inteiramente open-source. Apesar do custo inicial mais elevado — seja na redação de contratos, na compreensão das limitações dos analisadores ou na necessidade de ajustes
+estruturais na implementação — essa abordagem pode se mostrar mais vantajosa do que métodos tradicionais, como testes unitários extensivos, quando se busca atingir o mesmo nível de garantia,
+especialmente em sistemas críticos que demandam alto grau de confiança. Contudo, é importante destacar que a elaboração de contratos ainda requer profundo entendimento das particularidades e
+restrições das ferramentas, o que eleva a barreira de entrada, sobretudo diante da escassez de mensagens de erro claras ou mecanismos de depuração que tornem o processo mais intuitivo e familiar para
+desenvolvedores e engenheiros de software.
+
 \newpage
 \printbibliography[title={Referências}]
 
