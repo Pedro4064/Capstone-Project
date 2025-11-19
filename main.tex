@@ -43,7 +43,7 @@
 % Set the style of the page 
 \pagestyle{fancy}
 \fancyhf{}
-\rhead{Trabalho de Graduação \\ Pedro Henrique L. da Cruz \vspace{1px}}
+\rhead{Trabalho de Conclusão de Curso \\ Pedro Henrique L. da Cruz \vspace{1px}}
 \lhead{UNICAMP \\ Faculdade de Engenharia Mecânica\vspace{1px}}
 \rfoot{Page \thepage}
 
@@ -127,7 +127,7 @@
 % Subtitle
 \vspace{1cm}
 \begin{center}
-    \textbf{Trabalho de Graduação}
+    \textbf{Trabalho de Conclusão de Curso}
 \end{center}
 
 % Supervisor and student
@@ -146,6 +146,25 @@
 \begin{center}
     Campinas, 06 de Dezembro de 2025.
 \end{center}
+
+\newpage
+\section*{Resumo}
+O contínuo crescimento da complexidade de sistemas digitais e o aumento do papel desempenhado pelo software em domínios críticos tornam indispensáveis métodos robustos para garantir sua
+confiabilidade. Nesse contexto, a Verificação Formal passou a ser reconhecida como uma alternativa para complementar, ou até mesmo substituir, certos métodos tradicionais de Verificação e Validação, especialmente pela capacidade de
+fornecer garantias matemáticas sobre propriedades funcionais do código. Este trabalho apresenta um estudo prático da aplicação de métodos formais, utilizando a ferramenta Frama-C e os \emph{plugins}
+WP e EVA, na  verificação de ausência de erros em tempo de execução e corretude funcional de implementações na linguagem C de dois algoritmos utilizados em sistemas embarcados: o controlador PID e o
+filtro de média móvel.
+Os resultados obtidos demonstram que, apesar do elevado esforço necessário, a abordagem formal é capaz de identificar potenciais falhas e garantir comportamentos essenciais,
+reforçando seu valor para o desenvolvimento seguro e confiável de sistemas críticos.
+
+\section*{Abstract}
+The continuous growth in both complexity of digital systems and the responsibilities attributed to software in critical domains result in the need for robust methods to guarantee their reliability and
+assurance level. In this context, Formal Verification has been considered a viable alternative to complement, or in some cases replace, some traditional methods of Verification and Validation, specially for its
+ability to give mathematical guarantees about functional properties of the implemented code. This work presents a practical study on the application of formal methods, using the Frama-C platform and
+its plugins WP and Eva, in the verification of absence of run-time errors and functional correctness of the C
+implementation of two commonly used algorithms in embedded systems: A PID controller and a Moving Average Filter.
+The results obtained show that, despite the high level of effort required, the formal verification approach is capable of identifying potential failures
+points and guarantee functional behaviors essential to the correct execution of the program,  cementing its value for the safe and reliable development of critical systems.
 
 \newpage
 \tableofcontents
@@ -436,7 +455,7 @@ conseguiram verificar completamente 14 das 34 funções de \texttt{string.h} e 1
 verificação dedutiva desde que contratos ACSL adequados sejam elaborados. Para isso, os autores recorreram a especificações detalhadas envolvendo invariantes sobre ponteiros, relações entre tamanhos
 de buffers, validade de regiões de memória e comportamento esperado de iterações. Ao longo do processo, entretanto, diversas limitações práticas foram identificadas: certas estruturas da biblioteca eram
 excessivamente dependentes de \emph{casts} inseguros, dificultando a modelagem no WP; funções com alto grau de aliasing exigiam invariantes complexos para evitar ambiguidades no modelo de memória; e
-alguns padrões idiomáticos de C — como manipulação direta de ponteiros em laços decrecentes ou uso de macros expansivas — levavam o provador a gerar obrigações de prova que os \emph{solvers} não
+alguns padrões idiomáticos de C — como manipulação direta de ponteiros em laços decrecentes ou uso de macros expansivas — levaram o provador a gerar obrigações de prova que os \emph{solvers} não
 conseguiam resolver. Além disso, funções dependentes de chamadas ao sistema, especialmente aquelas relacionadas a operações de arquivo, só puderam ser parcialmente verificadas devido à falta de
 especificações para componentes externos, um desafio semelhante ao enfrentado por Silva et al. \cite{silva2016formal} em seu estudo envolvendo RTOS. Ainda assim, os resultados mostram que, com
 contratos bem construídos e modelagem cuidadosa, é possível obter garantias formais significativas mesmo para bibliotecas amplamente utilizadas, mas repletas de detalhes de implementação e manipulação
