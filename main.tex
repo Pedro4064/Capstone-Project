@@ -23,6 +23,9 @@
 \usepackage{float}
 \usepackage{xcolor}
 
+\usepackage{mathtools}  % loads »amsmath«
+\newtagform{brackets}{[}{]}
+\usetagform{brackets}
 
 % Create a Todo list
 \newlist{todolist}{itemize}{2}
@@ -152,7 +155,7 @@
 O contínuo crescimento da complexidade de sistemas digitais e o aumento do papel desempenhado pelo software em domínios críticos tornam indispensáveis métodos robustos para garantir sua
 confiabilidade. Nesse contexto, a Verificação Formal passou a ser reconhecida como uma alternativa para complementar, ou até mesmo substituir, certos métodos tradicionais de Verificação e Validação, especialmente pela capacidade de
 fornecer garantias matemáticas sobre propriedades funcionais do código. Este trabalho apresenta um estudo prático da aplicação de métodos formais, utilizando a ferramenta Frama-C e os \emph{plugins}
-WP e EVA, na  verificação de ausência de erros em tempo de execução e corretude funcional de implementações na linguagem C de dois algoritmos utilizados em sistemas embarcados: o controlador PID e o
+WP e EVA, na  verificação de ausência de erros em tempo de execução e corretude funcional de implementações na linguagem C de dois algoritmos amplamente utilizados em sistemas embarcados: o controlador PID e o
 filtro de média móvel.
 Os resultados obtidos demonstram que, apesar do elevado esforço necessário, a abordagem formal é capaz de identificar potenciais falhas e garantir comportamentos essenciais,
 reforçando seu valor para o desenvolvimento seguro e confiável de sistemas críticos.
@@ -198,7 +201,8 @@ points and guarantee functional behaviors essential to the correct execution of 
         conceitos importantes para a área de engenharia de software, provendo assim uma base para o entendimento dos métodos e resultados encontrados; na Seção \ref{chap:projetos_correlatos} são
         apresentados projetos correlatos, a fim de demonstrar a utilização da verificação formal em diferentes contextos, além das atuais limitações e desafios da sua implementação; a Seção
         \ref{chap:metodologia} abrange as etapas necessárias para a verificação formal, explorando a certificação da corretude funcional e ausência de erros em tempo de execução; a Seção
-        \ref{chap:resultados}, por fim, apresenta os resultados das verificações feitas, assim como os desafios e métodos alternativos utilizados para supera-los.
+        \ref{chap:resultados} apresenta os resultados das verificações feitas, assim como os desafios e métodos alternativos utilizados para supera-los e por fim na Seção \ref{chap:conclusao} são
+        apresentas as considerações finais.
 
 
 
@@ -230,7 +234,7 @@ Programação de computadores é uma ciência exata e, portanto, todas as propri
 Visando fornecer uma base lógica e formal para tal análise de propriedades de programas (sendo uma as mais importantes o seu funcionamento correto e esperado), Hoare propôs, em 1969, uma série de axiomas e regras escritas utilizando a notação chamada de “Tripla de Hoare", que possui, de forma geral, a seguinte estrutura:
 
 \begin{align}
-    P \ \  \{C\} \ \ Q
+    P \ \  \{C\} \ \ Q.
 \end{align}
 
 Essa notação deve ser lida como: “Se a condição \( P \) (chamada de pré-condição) é verdadeira antes da execução do comando \( C \), então a condição \( Q \) (chamada de pós-condição) será verdadeira após a execução de \( C \), desde que o programa termine.”
@@ -242,13 +246,13 @@ A partir dessa notação, é possível expressar uma série de axiomas e regras 
 O primeiro axioma definido é o que descreve a ação mais simples e corriqueira em programas: A atribuição de um valor para uma variável. Mais especificamente, ele descreve a alteração no estado do programa quando uma instrução de atribuição (como a descrita pela Equação \ref{eq:atribuicao}) é efetuada.
 
 \begin{align}
-    x := E
+    x := E.
     \label{eq:atribuicao}
 \end{align}
 
 O axioma da atribuição é definido por:
 \begin{align}
-    P(f) \ \  \{x := f\}  \ \ P(x)
+    P(f) \ \  \{x := f\}  \ \ P(x).
 \end{align}
 
 O axioma estabelece que, para que uma propriedade \( P \) seja válida após a execução da instrução sobre $x$ (nesta equação representada por $P(x)$), ela deve ser válida com \( f \) substituindo todas as ocorrências de \( x \) na expressão original ($P(f)$), antes da atribuição ocorrer. Isso mostra que realmente $x$ assumiu o valor de $f$.
@@ -260,7 +264,7 @@ Além de axiomas, é necessário pelo menos uma regra de inferência, a fim de p
 Uma regra que se encaixa nessa categoria é a regra da consequência, que tem o formato: "Se o código C, a partir de uma pré-condição P, resulta em R, e temos que R implica em S, podemos afirmar que o mesmo código e pré-condição implicam em S". Formalmente descrita por:
 
 \begin{align}
-    P \ \ \{C\} \ \ R, \ \ R \Rightarrow S \ \ \therefore P \ \ \{C\} \ \ S
+    P \ \ \{C\} \ \ R, \ \ R \Rightarrow S \ \ \therefore P \ \ \{C\} \ \ S.
 \end{align}
 
 \subsubsection{Regra de Composição}
@@ -268,7 +272,7 @@ Uma regra que se encaixa nessa categoria é a regra da consequência, que tem o 
 Programas em quase sua totalidade são compostos por uma sequência de comandos, portanto para tratar de propriedades de programas como um todo é necessário ponderar sobre cada um dos comandos envolvidos. A regra que trata disso é a regra de composição, formalmente representada por:
 
 \begin{align}
-    \left(P \ \ \{C_1\} \ \ Q\right) \land (Q \ \ \{C_2\} \ \ R) \Rightarrow P \ \ \{C_1;C_2\} \ \ R
+    \left(P \ \ \{C_1\} \ \ Q\right) \land (Q \ \ \{C_2\} \ \ R) \Rightarrow P \ \ \{C_1;C_2\} \ \ R.
 \end{align}
 
 Essa regra permite construir provas maiores a partir de partes menores, baseando-se no fato de que o estado final (pós-condição) de \( C_1 \) é a pré-condição inicial de \( C_2 \).
@@ -278,17 +282,16 @@ Essa regra permite construir provas maiores a partir de partes menores, baseando
 Por fim, uma construção imperativa para programas de maior complexidade é a iteração, isso é, processo repetitivo de execução de uma porção do programa $S$ até que uma condição $B$ seja falsa, como no caso de \emph{loops} como \emph{while} e \emph{for}. 
 
 \begin{align}
-    \text{while } B \text{ do } S
+    \text{while } B \text{ do } S.
 \end{align}
 
 Laços, devido a sua natureza de repetição, tornam a análise do código mais complexa \cite{blanchard2020introduction}. Assim como todo programa, a fim de analisar propriedades de \emph{loops}, é necessário uma pré-condição e uma pós-condição, que neste contexto são chamados de "invariantes de loop", \emph{i.e} propriedades que são sempre verdadeiras tanto antes quanto depois da finalização do laço. Formalmente descrita como:
 
 \begin{align}
     \frac{I \land B \ \ \{ S\} \ \  I}
-    {I \ \ \{\text{while } B \text{ do } S \} \ \ I \land \neg B}
+    {I \ \ \{\text{while } B \text{ do } S \} \ \ I \land \neg B}\ \ ,
 \end{align}
-
-Que pode ser lida como "Para que um programa $S$ rode em \emph{loop} até $B$ parar de ser verdade (parte inferior), é necessário que exista um invariante $I$ tal que se $B$ for verdadeiro, o programa $S$ irá rodar e $I$ ainda permanecerá verdadeiro após a finalização (parte superior)".
+que pode ser lida como "Para que um programa $S$ rode em \emph{loop} até $B$ parar de ser verdade (parte inferior), é necessário que exista um invariante $I$ tal que se $B$ for verdadeiro, o programa $S$ irá rodar e $I$ ainda permanecerá verdadeiro após a finalização (parte superior)".
 
 Essas quatro regras formam a base da Lógica de Hoare e permitem analisar certas propriedades de programas de computador através de uma notação lógica e formal.
 
@@ -315,19 +318,19 @@ Deseja-se determinar qual condição deve ser satisfeita antes da execução do 
 Inicia-se o método pela análise do último comando, \texttt{x = x + 1}. Para que $x > 0$ seja verdadeiro após a execução dessa linha, o valor atribuído a \texttt{x}, isto é, $x + 1$, deve ser maior que zero antes da execução. Assim, a pré-condição imediata dessa linha é:
 
 \begin{equation}
-x + 1 > 0
+x + 1 > 0.
 \end{equation}
 
 Voltando uma linha no programa, considera-se agora o comando \texttt{x = y}. Para garantir que $x + 1 > 0$ seja verdadeiro após esta atribuição, deve-se substituir \texttt{x} por \texttt{y}, já que o valor de \texttt{x} será sobrescrito com o de \texttt{y}. A pré-condição correspondente então se torna:
 
 \begin{equation}
-y + 1 > 0
+y + 1 > 0.
 \end{equation}
 
 Portanto, a condição necessária para garantir que a pós-condição $x > 0$ seja satisfeita ao final do bloco é que, antes da execução, a seguinte pré-condição seja verdadeira:
 
 \begin{equation}
-y + 1 > 0
+y + 1 > 0.
 \label{eq:pre_condi_exemplo}
 \end{equation}
 
@@ -373,7 +376,6 @@ Matematicamente, a saída $u(t)$  do controlador PID é expressa por:
 \begin{align}
     u(t) = k_pe(t) + k_i\int^t_0e(\tau)d\tau + k_d\frac{d}{dt}\Bigr(e(t)\Bigl),
 \end{align}
-
 em que $k_p$, $k_d$, $k_d$ representam, respectivamente, os ganhos proporcional, integral e derivativo. Em implementações digitais — como em sistemas embarcados — essa equação é discretizada, considerando o tempo de amostragem e métodos numéricos adequados para o cálculo da integral e da derivada.
 
 A correta sintonia dos parâmetros é fundamental para o desempenho do controlador. Ajustes inadequados podem resultar em comportamentos indesejados, como oscilações excessivas, lentidão na resposta ou
@@ -619,7 +621,7 @@ Essas construções formam a base para a escrita de especificações formais em 
 
 \subsubsection{Plugins - WP e EVA}
 
-O plugin \texttt{WP} (\emph{Weakest Precondition}) é um verificador dedutivo. Ele implementa a técnica de cálculo da pré-condição mais fraca, formulada por Edsger Dijkstra e descrita na seção \ref{sec:wp}, com o objetivo de provar que o código C cumpre a especificação dada em anotações ACSL.
+O plugin \texttt{WP} (\emph{Weakest Precondition}) é um verificador dedutivo. Ele implementa a técnica de cálculo da pré-condição mais fraca, formulada por Edsger Dijkstra e descrita na Seção \ref{sec:wp}, com o objetivo de provar que o código C cumpre a especificação dada em anotações ACSL.
 
 A partir das anotações ACSL e do código-fonte, o WP gera condições de verificação (\emph{verification conditions} — VCs), que são fórmulas lógicas. Essas fórmulas precisam ser válidas (ou satisfazíveis) para garantir que o código respeita a especificação. 
 
@@ -1064,7 +1066,7 @@ da implementação do controlador PID (Figura \ref{fig:prova_pid_func}).
 
 \newpage
 \subsection{Filtro Média Móvel}
-O código fonte  que  implementa um filtro de médio móvel simples, e já dividod em funções menores a fim de 
+O código fonte  que  implementa um filtro de médio móvel simples, divido em funções menores a fim de 
 facilitar o processo de verificação é apresentado abaxo:
 \vspace{10px}
 \begin{lstlisting}[style=cStyle, caption={Implementação - Média Móvel.}, label={lst:codigo_media_movel_sem_acsl}]
@@ -1087,20 +1089,18 @@ void f_moving_average_filter(float* raw_data, unsigned int raw_data_length,
 \end{lstlisting}
 \vspace{10px}
 \subsubsection{Verificação de RTE}
-De forma diferente ao que foi feito para a análise de erros em tempo de execução do controlador
+Diferentemente ao que foi feito para a análise de erros em tempo de execução do controlador
 PID, para a análise de RTE do filtro foi utilizado o \emph{plugin} EVA, que utiliza métodos de interpretação abstrata. Portanto é necessário
-primeiramente estabelecer o contexto em que a função é utilizado.
+primeiramente estabelecer o contexto em que a função é utilizada.
 
 Seguindo o contexto de sistemas embarcados, foi considerado que a aplicação onde será utilizado o filtro 
 consiste no pós processamento de uma série de amostras feitas por um ADC em \emph{burst mode}, onde serão capturados
 50 pontos, e será utilizado uma janela de 10 amostras. 
 
-Ademais, como é de praxe diferentes sistemas operacionais de tempo real (RTOS) e fabricantes de 
-micro-controladores disponibilizarem abstrações para a interface com periféricos como ADC - chamados
-de Hardware Abstraction Layers, ou HAL - também será definido a assinatura de uma função de leitura do ADC e 
-uma para leitura em \emph{burst mode}, chamadas de \emph{rtos\_sample\_adc} e \emph{rtos\_burst\_sample\_adc},
-respectivamente, a fim de demostrar como que é posível validar códigos fontes que utilizam bibliotecas de terceiros, 
-sem necessariamente preocupar-se com os detalhes de sua implementação - mantendo assim o nível de abstração esperado.
+É comum que diferentes sistemas operacionais de tempo real (RTOS) e fabricantes de microcontroladores disponibilizem camadas de abstração de hardware (HAL) para facilitar a interface com periféricos, como o ADC.
+Nesse contexto, serão definidas as assinaturas de duas funções utilizadas para a leitura do ADC: a função  responsável por uma leitura simples, \emph{rtos\_sample\_adc}, e a função \emph{rtos\_burst\_sample\_adc}, destinada à leitura em \emph{burst}.
+
+O propósito dessas definições é ilustrar como é possível validar códigos-fontes que dependem de bibliotecas de terceiros sem a necessidade de conhecer ou verificar em detalhe suas implementações internas, mantendo assim o nível de abstração esperado.
 
 \vspace{10px}
 \begin{lstlisting}[style=cStyle, caption={Utilização - Média Móvel.}, label={lst:utilizacao_filtro}]
@@ -1128,8 +1128,8 @@ int main(void) {
 \end{lstlisting}
 \vspace{10px}
 
-A partir desse contexto, foi possível rodar a análise de erro em tempo de execução incial através do comando \emph{verify\_rte\_eva},
-definido na imagem \ref{lst:cmake}, e obtendo um resultado análogo aquele das primeiras rodadas da análise do controlador PID: Erros 
+A partir desse contexto, foi possível executar a análise de erro em tempo de execução incial através do comando \emph{verify\_rte\_eva},
+definido na Imagem \ref{lst:cmake}, e obtendo um resultado análogo aquele das primeiras rodadas da análise do controlador PID: erros 
 de garantia de finitude nas operações com variáveis de ponto flutuante, mais especificametne na função \emph{f\_sum}, além de um erro
 referente à falta da implementação ou de uma especificação para a função da HAL \emph{rtos\_sample\_adc}, como observado na figura abaixo:
 
@@ -1362,15 +1362,16 @@ representando a ausência de efeito colateral da operação e resultando na veri
 
 \newpage
 \section{Conclusão}
+\label{chap:conclusao}
 O avanço contínuo da tecnologia digital ao longo das últimas décadas consolidou o software como parte essencial de praticamente todos os sistemas modernos. Da automação industrial aos dispositivos
 médicos, da aviação ao setor financeiro, observa-se uma expansão constante tanto na complexidade desses sistemas quanto no conjunto de responsabilidades atribuídas ao software. Soluções antes baseadas
 em mecanismos eletromecânicos foram, ao longo do tempo, substituídas por sistemas digitais controlados por programas, o que trouxe ganhos importantes em eficiência, flexibilidade e capacidade
 funcional. Ao mesmo tempo, porém, essa transição aumentou a dependência da sociedade do funcionamento correto e previsível desses softwares.
 
 Este trabalho apresentou em dois diferentes cenários uma metodologia que vem ganhando cada vez mais notoriedade, principalmente no setor aeronáutico,
-que visa garantir a ausência de erros em tempo de execução e a corretude funcional dos programas, uitilizando ferramentas open-source: A Verificação Formal.
+que visa garantir a ausência de erros em tempo de execução e a corretude funcional dos programas, uitilizando ferramentas \emph{open-source}: a Verificação Formal.
 
-No primeiro cenário foi possível verificar a ausência de erros em tempo de execução e a corretude funcional através do \emph{Frama-C}, e seus plugins \emph{WP} e \emph{RTE}, da implementação de um
+No primeiro cenário, foi possível verificar a ausência de erros em tempo de execução e a corretude funcional através do \emph{Frama-C}, e seus plugins \emph{WP} e \emph{RTE}, da implementação de um
 Controlador PID.
 A verificação, mesmo tendo êxito, levantou algumas peculiaridades do comportamento do sistema a depender dos diferentes modelos tanto de memória quanto aritméticos escolhidos e do estado atual das ferramentas utilizadas que resultaram em um trabalho considerável para garantir que \emph{solvers} automáticos
 fossem capazes de analisar corretamente o código fonte sem a necessidade de provas manuais. Tal trabalho está diretamente ligado as 
@@ -1381,7 +1382,7 @@ De forma análoga, a verificação a pesar de bem sucedidade apontou dificuladed
 \emph{arrays}, resultando na necessidade de notações e contratos auxiliares - resultando em um total de 72 linhas de \emph{ACSL} e somente 15 para a implementação em \emph{C} propriamente dita.
 
 Em síntese, os dois cenários analisados demonstram que a verificação formal, embora ainda exija esforço significativo na modelagem, especificação e adaptação do código às ferramentas, já é 
-viável utilizando soluções inteiramente open-source. Apesar do custo inicial mais elevado — seja na redação de contratos, na compreensão das limitações dos analisadores ou na necessidade de ajustes
+viável utilizando soluções inteiramente \emph{open-source}. Apesar do custo inicial mais elevado — seja na redação de contratos, na compreensão das limitações dos analisadores ou na necessidade de ajustes
 estruturais na implementação — essa abordagem pode se mostrar mais vantajosa do que métodos tradicionais, como testes unitários extensivos, quando se busca atingir o mesmo nível de garantia,
 especialmente em sistemas críticos que demandam alto grau de confiança. Contudo, é importante destacar que a elaboração de contratos ainda requer profundo entendimento das particularidades e
 restrições das ferramentas, o que eleva a barreira de entrada, sobretudo diante da escassez de mensagens de erro claras ou mecanismos de depuração que tornem o processo mais intuitivo e familiar para
