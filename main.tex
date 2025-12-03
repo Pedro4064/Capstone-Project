@@ -4,6 +4,7 @@
 \author{}
 
 \usepackage[margin=0.8in]{geometry}
+\usepackage[portuguese]{babel}
 \usepackage{indentfirst}
 \usepackage{fancyhdr}
 \usepackage{tcolorbox} 
@@ -30,6 +31,7 @@
 % Create a Todo list
 \newlist{todolist}{itemize}{2}
 \setlist[todolist]{label=$\square$}
+\renewcommand{\figurename}{Figura}
 
 % Fix vspace inside wrapfigure
 \setlength\intextsep{0pt}
@@ -305,14 +307,18 @@ O problema da utilização deste método direto é que, por considerarmos cada c
 
 A alternativa a esse método de análise é o chamado \emph{backwards-reasoning}, onde inicia-se com a análise das pós-condições $Q$ que deseja-se verificar e analisa-se, a partir do último comando até o primeiro, qual seria a pré-condição que garanta o comportamento desejado para cada etapa \cite{blanchard2020introduction,freundHoareLogic}. É desejável, todavia, sempre ter pré-condições mais fracas (isto é generalistas) a fim de se ter garantias para o maior conjunto de entradas possíveis \cite{freundHoareLogic}, processo chamado de \emph{cálculo da pré-Condição mais fraca}.  Um exemplo que ilustra o procedimento, descrito por \cite{freundHoareLogic}, é apresentado abaixo:
 
-Deseja-se determinar qual condição deve ser satisfeita antes da execução do programa \ref{lst:codigo_simples_wp} (\emph{i.e qual a pré-condição}) para garantir que a pós-condição $x > 0$ seja verdadeira ao final. Para isso, aplica-se o raciocínio regressivo (\emph{backwards-reasoning}), calculando a pré-condição mais fraca para cada comando, de forma que se mantenha a validade da pós-condição ao término da execução.
-\begin{center}
-\begin{lstlisting}[language=C, captionpos=b, caption={Código com Pós-Condição Desejada}, label={lst:codigo_simples_wp}]
-                                x = y;
-                                x = x + 1;
-                                // { x > 0 }
-\end{lstlisting}
-\end{center}
+Deseja-se determinar qual condição deve ser satisfeita antes da execução do programa representado pela Figura \ref{lst:codigo_simples_wp} (\emph{i.e qual a pré-condição}) para garantir que a pós-condição $x > 0$ seja
+verdadeira ao final. Para isso, aplica-se o raciocínio regressivo (\emph{backwards-reasoning}), calculando a pré-condição mais fraca para cada comando, de forma que se mantenha a validade da
+pós-condição ao término da execução.
+
+\vspace{5px}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.17\textwidth]{img/teoria_pos_cond.png}
+    \caption{Código com Pós-Condição Desejada}
+    \label{lst:codigo_simples_wp}
+\end{figure}
+\vspace{5px}
 
 
 Inicia-se o método pela análise do último comando, \texttt{x = x + 1}. Para que $x > 0$ seja verdadeiro após a execução dessa linha, o valor atribuído a \texttt{x}, isto é, $x + 1$, deve ser maior que zero antes da execução. Assim, a pré-condição imediata dessa linha é:
@@ -335,15 +341,17 @@ y + 1 > 0.
 \end{equation}
 
 Reescrevendo o programa com as respectivas anotações de pré-condições intermediárias, temos:
-\begin{lstlisting}[language=C, captionpos=b, caption={Código com Pós-Condição Desejada Anotado}, label={lst:codigo_simples_wp_anotado}]
-                                //{ y + 1 > 0 } 
-                                x = y;
-                                //{ x + 1 > 0 }
-                                x = x + 1;
-                                // { x > 0 }
-\end{lstlisting}
+\vspace{5px}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.2\textwidth]{img/teoria_pos_cond_anotada.png}
+    \caption{Código com Pós-Condição Desejada Anotado}
+    \label{lst:codigo_simples_wp_anotado}
+\end{figure}
+\vspace{5px}
 
-Como resultado, tem-se que garantindo a pré-condição \ref{eq:pre_condi_exemplo}, o Programa \ref{lst:codigo_simples_wp} terá o comportamento esperado e é funcionalmente correto.
+
+Como resultado, tem-se que garantindo a pré-condição expressa pela Equação \ref{eq:pre_condi_exemplo}, o Programa \ref{lst:codigo_simples_wp} terá o comportamento esperado e é funcionalmente correto.
 
 
 
