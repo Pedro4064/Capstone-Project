@@ -661,6 +661,7 @@ quaisquer deduções auxiliares para a verificação funcional.
 \subsubsection{Preparação do Código Fonte e Ambiente}
 A fim de facilitar o fluxo de verificação dos algoritmos, foi integrado ao sistema de \emph{build} -\emph{cmake}- tanto o processo de compilação quanto de verificação:
 
+\vspace{5px}
 \begin{figure}[h!]
     \centering 
     \includegraphics[width=\textwidth]{img/cmake.png}
@@ -864,26 +865,14 @@ da implementação do controlador PID (Figura \ref{fig:prova_pid_func}).
 \newpage
 \subsection{Filtro Média Móvel}
 O código fonte  que  implementa um filtro de médio móvel simples, divido em funções menores a fim de 
-facilitar o processo de verificação é apresentado abaxo:
+facilitar o processo de verificação é apresentado na Figura \ref{lst:codigo_media_movel_sem_acsl}.
 \vspace{10px}
-\begin{lstlisting}[style=cStyle, caption={Implementação - Média Móvel.}, label={lst:codigo_media_movel_sem_acsl}]
-float f_sum(float* values, int length){
-    float result = 0.0f;
-    for(int i=0; i<length; i++)
-        result+=values[i];
-    return result;
-}
-
-
-void f_moving_average_filter(float* raw_data, unsigned int raw_data_length,
-                          float* filtered_data, unsigned int filtered_data_length,
-                          unsigned int window_size){
-    
-    for (unsigned int i = 0; i < filtered_data_length; i++) {
-        filtered_data[i] = f_sum(raw_data+i, window_size)/window_size;
-    }
-}
-\end{lstlisting}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{img/filtro_codigo_fonte.png}
+    \caption{Implementação - Média Móvel.}
+    \label{lst:codigo_media_movel_sem_acsl}
+\end{figure}
 \vspace{10px}
 \subsubsection{Verificação de RTE}
 Diferentemente ao que foi feito para a análise de erros em tempo de execução do controlador
@@ -900,41 +889,25 @@ Nesse contexto, serão definidas as assinaturas de duas funções utilizadas par
 O propósito dessas definições é ilustrar como é possível validar códigos-fontes que dependem de bibliotecas de terceiros sem a necessidade de conhecer ou verificar em detalhe suas implementações internas, mantendo assim o nível de abstração esperado.
 
 \vspace{10px}
-\begin{lstlisting}[style=cStyle, caption={Utilização - Média Móvel.}, label={lst:utilizacao_filtro}]
-#include "filter.h"
-#include <string.h>
-
-
-
-extern void rtos_sample_adc(float* dest);
-
-void rtos_burst_sample_adc(float* raw_data_buffer, int n_samples){
-  for (int i = 0; i < n_samples; i++) rtos_sample_adc(&raw_data_buffer[i]);
-}
-
-int main(void) {
-  float raw_data[50]; 
-  float filtered_data[41]; 
-  memset(raw_data, 0, sizeof(raw_data));
-  memset(filtered_data, 0, sizeof(filtered_data));
-
-  rtos_burst_sample_adc(raw_data, 50);
-
-  f_moving_average_filter(raw_data, 50, filtered_data, 41, 10);
-}
-\end{lstlisting}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{img/filtro_contexto.png}
+    \caption{Utilização - Média Móvel.}
+    \label{lst:utilizacao_filtro}
+\end{figure}
 \vspace{10px}
 
 A partir desse contexto, foi possível executar a análise de erro em tempo de execução incial através do comando \emph{verify\_rte\_eva},
 definido na Imagem \ref{lst:cmake}, e obtendo um resultado análogo aquele das primeiras rodadas da análise do controlador PID: erros 
 de garantia de finitude nas operações com variáveis de ponto flutuante, mais especificametne na função \emph{f\_sum}, além de um erro
-referente à falta da implementação ou de uma especificação para a função da HAL \emph{rtos\_sample\_adc}, como observado na figura abaixo:
+referente à falta da implementação ou de uma especificação para a função da HAL \emph{rtos\_sample\_adc}, como observado na Figura \ref{fig:resultado_preliminar_rte_eva_filtro}.
 
 \vspace{5px}
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.8\textwidth]{img/rte/passo_1_filtro_rte.png}
     \caption{Resultado Preliminar RTE EVA - Filtro.}
+    \label{fig:resultado_preliminar_rte_eva_filtro}
 \end{figure}
 \vspace{5px}
 
@@ -949,15 +922,14 @@ ter uma definição substituta e simplificada para a função \emph{rtos\_burst\
 calusulas de \emph{ensures}.
 
 Resultando, então, nas definições estabelecidas na figura abaixo e obtendo nenhum erro em tempo de execução, como visto pela Figura \ref{fig:success_rte_filtro}.
-\begin{lstlisting}[style=cStyle, caption={Faixa de Valores e Contratos Limitadores - Média Móvel.}, label={lst:utilizacao_filtro}]
-/*@ requires \valid(dest); assigns *dest \from \nothing;
-    ensures \is_finite(*dest) && 0.0f <= *dest <= 3300.0f;*/
-extern void rtos_sample_adc(float* dest);
-void rtos_burst_sample_adc(float* raw_data_buffer, int n_samples){
-  //@ loop unroll n_samples;
-  for (int i = 0; i < n_samples; i++) rtos_sample_adc(&raw_data_buffer[i]);
-}
-\end{lstlisting}
+\vspace{5px}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{img/filtro_contrato_rtos.png}
+    \caption{Faixa de Valores e Contratos Limitadores - Média Móvel.}
+    \label{lst:utilizacao_filtro}
+\end{figure}
+\vspace{5px}
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.5\textwidth]{img/rte/passo_2_resulte_filtro.png}
@@ -969,113 +941,40 @@ void rtos_burst_sample_adc(float* raw_data_buffer, int n_samples){
 \subsubsection{Verificação Funcional}
 
 Para a análise funcional, o primeiro passo feito foi refletir as faixas definidas pela análise anterior
-nos contratos que representarão a funcionalidade esperada de cada uma das duas funções. Resultando nos seguintes contratos 
-preliminares:
+nos contratos que representarão a funcionalidade esperada de cada uma das duas funções. Resultando nos  contratos 
+preliminares apresentados na Figura \ref{lst:contratos_preliminares}.
 
 \vspace{5px}
-\begin{lstlisting}[style=cstyle, caption={contratos Preliminares - Média Móvel}, label={lst:contratos_preliminares}]
-/*@
-    predicate f_valid_array_r(float* array, unsigned int length) =
-        \valid_read(array+(0..length-1)) && 0<=length<=int_max;
-    predicate f_valid_array_rw(float* array, unsigned int length) =
-        \valid(array+(0..length-1)) && 0<=length<=int_max;
-*/
-
-/*@
-    requires valid_array: \valid_read(values+(0..length-1));
-    requires valid_length: 0<=length<=50;
-*/
-float f_sum(float* values, int length){...}
-
-/*@
-    requires valid_window_size: 0 < window_size <= raw_data_length <= 50;
-    requires valid_buffer_size: filtered_data_length == raw_data_length - window_size + 1;
-    requires valid_value_range: \forall integer i; 0 <= i < raw_data_length ==>  0.0f <= raw_data[i] <= (float)(max_voltage);
-    requires mem_separation: \separated(raw_data+(0..raw_data_length-1), filtered_data+(0..filtered_data_length-1));
-    requires valid_pointers: f_valid_array_r(raw_data, raw_data_length) &&
-                             f_valid_array_rw(filtered_data, filtered_data_length);
-*/
-void f_moving_average_filter(float* raw_data, unsigned int raw_data_length,
-                          float* filtered_data, unsigned int filtered_data_length,
-                          unsigned int window_size){...}
-\end{lstlisting}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{img/filtro_contratos_preliminares.png}
+    \caption{contratos Preliminares - Média Móvel.}
+    \label{lst:contratos_preliminares}
+\end{figure}
 \vspace{5px}
 
 Em seguida, foi realizado a definição de funções lógicas a fim de auxiliar nas definições de pós-condições 
 e invariantes de loops, assim como a definição dos efeitos colaterais (\emph{assigns}) e o \emph{lemma} \emph{f\_div\_mul}, 
-utilizado para auxiliar os \emph{proovers} nos limites de divisão:
+utilizado para auxiliar os \emph{proovers} nos limites de divisão, ilustradas na Figura \ref{lst:efeitos_colaterais_filtro}.
 \vspace{5px}
-\begin{lstlisting}[style=cstyle, caption={Funções Lógicas e Efeitos Colaterais - Média Móvel}, label={lst:efeitos_colaterais_filtro}]
-/*@
-    logic float f_sum_to_index(float* values, integer index) = 
-        (index<0)? (float)(0): (float)(values[index]+(float)f_sum_to_index(values, index-1));
-    logic float f_sum(float* values, integer length) = (float)(f_sum_to_index(values, length-1));
-    logic float f_average(float* array, integer n) = (float)(f_sum(array, n)/n);
-    lemma f_div_mul: \forall float a, b, m  ; m > 0.0f ==> 0.0f <= a <= (float)(b * m) ==> 
-        0.0f <= (float)(a / m) <= b ;
-*/
-
-/*@
-    ...
-    assigns \nothing;
-    ensures \result == (float)(f_sum(values, length));
-*/
-float f_sum(float* values, int length){...}
-
-/*@
-    ...
-    assigns filtered_data[0..filtered_data_length-1];
-    ensures \forall integer i; 0<= i < filtered_data_length ==> 
-        filtered_data[i] == f_average(raw_data+i, window_size);
-*/
-void f_moving_average_filter(float* raw_data, unsigned int raw_data_length,
-                          float* filtered_data, unsigned int filtered_data_length,
-                          unsigned int window_size){...}
- 
-\end{lstlisting}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{img/filtro_funcoes_logicas.png}
+    \caption{Funções Lógicas e Efeitos Colaterais - Média Móvel.}
+    \label{lst:efeitos_colaterais_filtro}
+\end{figure}
 \vspace{5px}
 
+\newpage
 E por fim foi descrito os invariantes de loop necessários, além do \emph{lemma} \emph{f\_div\_mul}, 
 necessário para auxiliar os \emph{proovers} em determinar os limites da divisão \cite{KsassPeuk2025_framaC_WP_moving_average}:
 \vspace{5px}
-\begin{lstlisting}[style=cstyle, caption={Invariantes de Loop e Lemma - Média Móvel}, label={lst:invariantes_filtro}]
-/*@
-    lemma f_div_mul: \forall float a, b, m  ; m > 0.0f ==> 
-        0.0f <= a <= (float)(b * m) ==> 0.0f <= (float)(a / m) <= b ;
-*/
-
-/*@ ... */
-float f_sum(float* values, int length){
-    float result = 0.0f;
-    /*@
-        loop invariant termination_inv: 0<=i<=length;
-        loop invariant calculation_inv: result == (float)(f_sum_to_index(values, i-1));
-        loop assigns result, i;
-        loop variant length-i;
-    */
-    for(int i=0; i<length; i++)
-        result+=values[i];
-    return result;
-}
-
-/*@ ... */
-void f_moving_average_filter(float* raw_data, unsigned int raw_data_length,
-                          float* filtered_data, unsigned int filtered_data_length,
-                          unsigned int window_size){
-    /*@
-        loop invariant termination_inv: 0 <= i <= filtered_data_length;
-        loop invariant average_inv: \forall integer k; 0 <= k < i ==> filtered_data[k]==f_average(raw_data+k, window_size);
-        loop invariant upper_bound_inv: \forall integer k; 0 <= k < i ==> 0.0f <= filtered_data[k] <= (float)(MAX_VOLTAGE);
-
-        loop assigns i, filtered_data[0..filtered_data_length-1];
-
-        loop variant filtered_data_length - i;
-    */
-    for (unsigned int i = 0; i < filtered_data_length; i++) {
-        filtered_data[i] = f_sum(raw_data+i, window_size)/window_size;
-    }
-}
-\end{lstlisting}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{img/filtro_invariantes_de_loop.png}
+    \caption{Invariantes de Loop e Lemma - Média Móvel.}
+    \label{lst:invariantes_filtro}
+\end{figure}
 \vspace{5px}
 
 Essas definições, entretanto, ainda não são suficientes para os \emph{solvers} validarem 
@@ -1084,7 +983,7 @@ as invariantes de loop da função \emph{f\_moving\_average\_filter} e, por cons
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.9\textwidth]{img/functional/funcional_filtro_passo_01_cli.png}
-    \caption{Resultado da Primeira Iteração da Verifição Funcional - Filtro}
+    \caption{Resultado da Primeira Iteração da Verifição Funcional - Filtro.}
 \end{figure}
 \vspace{5px}
 
@@ -1097,54 +996,12 @@ Já a falha durante a prova do invariante \emph{upper\_bound\_inv} se dá pois o
 um passo intermediário para provar tal propriedade, sendo possivel de ser sanado utilizando também \emph{ghost code}.
 
 \newpage
-\begin{lstlisting}[style=cstyle, caption={Ghost Code e Asserts Auxiliares - Média Móvel}, label={lst:ghost_code_filter}]
-/*@ ghost
-    /@ requires \forall integer i ; 0 <= i < len ==> 0 <= array[i] <= MAX_VOLTAGE ;
-        assigns \nothing ;
-        ensures 0.0f <= f_sum(array, len) <= (float)(len * MAX_VOLTAGE); @/
-    void f_lemma_bound_sum(float* array, unsigned len){
-        /@ loop invariant termination_inv: 0 <= i <= len ;
-        loop invariant upper_bound_inv: 0.0f <= f_sum(array, i) <= (float)(i * MAX_VOLTAGE);
-        loop assigns i ;
-        loop variant len - i ; @/
-        for(unsigned i = 0 ; i < len ; i++);
-    }*/
-
-/*@ ... */
-void f_moving_average_filter(...){
-    /*@ ... */
-    for (unsigned int i = 0; i < filtered_data_length; i++) {
-        //@ ghost top_entry: ;
-        //@ ghost f_lemma_bound_sum(raw_data+i, window_size);
-        filtered_data[i] = f_sum(raw_data+i, window_size)/window_size;
-        /*@ assert
-            \forall integer k, x ;
-                0 <= k < i ==>
-                0 <= x < window_size ==>
-                    \at((raw_data+k)[x], top_entry) == (raw_data+k)[x]; */
-        /*@ ghost
-            /@ loop invariant 0 <= k <= i+1 ;
-               loop invariant
-                   \forall integer j ; 0 <= j < k ==>
-                       f_sum(raw_data+j, window_size) ==
-                       f_sum{top_entry}(raw_data+j, window_size) ;
-               loop assigns k ;
-               loop variant (i + 1) - k ; @/
-            for(unsigned k = 0 ; k <= i ; k++){
-                /@ loop invariant 0 <= e <= window_size ;
-                   loop invariant f_sum(raw_data+k, e) == f_sum{top_entry}(raw_data+k, e);
-                   loop assigns e;
-                   loop variant window_size - e; @/
-                for(unsigned e = 0 ; e < window_size ; e++);
-            } */
-        /*@ assert
-            \forall integer k ;
-                0 <= k <= i ==>
-                    f_sum(raw_data+k, window_size) ==
-                    f_sum{LoopCurrent}(raw_data+k, window_size); */
-    }
-}
-\end{lstlisting}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{img/filtro_ghost_code.png}
+    \caption{Ghost Code e Asserts Auxiliares - Média Móvel.}
+    \label{lst:ghost_code_filter}
+\end{figure}
 \vspace{5px}
 
 Com a utilização de \emph{ghost code} e de \emph{assert} que levem a análise de cada elemento individual das \emph{array} envolvidas, 
@@ -1154,7 +1011,7 @@ representando a ausência de efeito colateral da operação e resultando na veri
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.5\textwidth]{img/functional/successful_verification_filter.png}
-    \caption{Resultado da Verificação Funcional - Filtro}
+    \caption{Resultado da Verificação Funcional - Filtro.}
 \end{figure}
 
 \newpage
